@@ -73,8 +73,8 @@
     <LibraryPath>D:\Applications\opencv\build\x86\vc12\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>D:\Applications\opencv\build\include;D:\Applications\opencv\build\include\opencv;D:\Applications\opencv\build\include\opencv2;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Applications\opencv\build\x64\vc12\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\Applications\build2.4.13\install\include;D:\Applications\build2.4.13\install\include\opencv;D:\Applications\build2.4.13\install\include\opencv2;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\Applications\build2.4.13\install\x64\vc14\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -93,7 +93,7 @@
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opencv_core249d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_core2413d.lib;opencv_highgui2413d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

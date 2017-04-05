@@ -6,6 +6,11 @@ using namespace cv;
 
 int main()
 {
-	cout << "Hello World" << endl;
+	Mat image = imread("timg.jpg");
+	if (image.data)
+	{
+		imshow("Test Image",image);
+		waitKey(0);
+	}
 	return 0;
 }
