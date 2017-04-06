@@ -2,10 +2,10 @@
 
 #include <opencv2\core\core.hpp>
 
-class Frame
+class FrameSource
 {
 public:
-	virtual ~Frame() {}
+	virtual ~FrameSource() {}
 
 	virtual void nextFrame(cv::OutputArray frame) = 0;
 	virtual void reset() = 0;

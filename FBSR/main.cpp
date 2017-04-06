@@ -2,7 +2,7 @@
 #include <opencv.hpp>
 
 #include "FrameFactory.h"
-#include "Frame.h"
+#include "FrameSource.h"
 
 using namespace std;
 using namespace cv;
@@ -11,7 +11,7 @@ int main()
 {
 	Mat image = imread("timg.jpg");
 
-	Ptr<Frame> emptyFrame = FrameFactory::createEmptyFrame();
+	Ptr<FrameSource> emptyFrame = FrameFactory::createEmptyFrame();
 
 	if (image.data)
 	{

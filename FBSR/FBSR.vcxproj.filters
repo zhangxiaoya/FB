@@ -20,13 +20,19 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Frame.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="EmptyFrame.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="FrameFactory.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="VideoFrame.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameSource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="EmptyFrameSource.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CaptureFrameSource.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

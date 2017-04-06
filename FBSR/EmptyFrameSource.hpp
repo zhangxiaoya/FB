@@ -1,7 +1,7 @@
 #pragma once
-#include "Frame.h"
+#include "FrameSource.h"
 
-class EmptyFrame : public Frame
+class EmptyFrame : public FrameSource
 {
 public:
 	void nextFrame(cv::OutputArray frame);
