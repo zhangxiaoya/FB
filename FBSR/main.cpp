@@ -11,6 +11,7 @@ int main()
 	{
 		imshow("Test Image",image);
 		waitKey(0);
+		destroyAllWindows();
 	}
 	return 0;
 }
