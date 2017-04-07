@@ -6,6 +6,9 @@
 # Ignore image file
 *.jpg
 
+# Ignorw video file
+*.avi
+
 # Ignore class diagram file
 *.cd
 
