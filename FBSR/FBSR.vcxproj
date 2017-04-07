@@ -129,8 +129,12 @@
     <ClInclude Include="CaptureFrameSource.hpp" />
     <ClInclude Include="EmptyFrameSource.hpp" />
     <ClInclude Include="FrameSource.h" />
-    <ClInclude Include="FrameFactory.h" />
+    <ClInclude Include="FrameSourceFactory.h" />
     <ClInclude Include="VideoFrame.hpp" />
+    <ClInclude Include="VideoFrameSource.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

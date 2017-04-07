@@ -20,9 +20,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="FrameFactory.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="VideoFrame.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -35,5 +32,14 @@
     <ClInclude Include="CaptureFrameSource.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="VideoFrameSource.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameSourceFactory.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
 </Project>
