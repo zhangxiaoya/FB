@@ -14,18 +14,15 @@ public:
 	void nextFrame(OutputArray frame);
 
 protected:
-	VideoCapture vc_;
-
-private:
-	Mat frame_;
+	VideoCapture videoCapture;
 
 };
 
-void CaptureFrameSource::nextFrame(OutputArray _frame)
+void CaptureFrameSource::nextFrame(OutputArray outputFrame)
 {
-	if (_frame.kind() == _InputArray::MAT)
+	if (outputFrame.kind() == _InputArray::MAT)
 	{
-		vc_ >> _frame.getMatRef();
+		videoCapture >> outputFrame.getMatRef();
 	}
 	else
 	{

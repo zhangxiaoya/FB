@@ -20,7 +20,7 @@ VideoFrameSource::VideoFrameSource(const string& videoFileName) : videoFileName(
 
 void VideoFrameSource::reset()
 {
-	vc_.release();
-	vc_.open(videoFileName);
-	CV_Assert(vc_.isOpened());
+	videoCapture.release();
+	videoCapture.open(videoFileName);
+	CV_Assert(videoCapture.isOpened());
 }
