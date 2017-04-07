@@ -6,6 +6,9 @@
 # Ignore image file
 *.jpg
 
+# Ignore class diagram file
+*.cd
+
 # User-specific files
 *.suo
 *.user
