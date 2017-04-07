@@ -126,12 +126,12 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CaptureFrameSource.hpp" />
-    <ClInclude Include="EmptyFrameSource.hpp" />
-    <ClInclude Include="FrameSource.h" />
-    <ClInclude Include="FrameSourceFactory.h" />
+    <ClInclude Include="FrameSource\CaptureFrameSource.hpp" />
+    <ClInclude Include="FrameSource\EmptyFrameSource.hpp" />
+    <ClInclude Include="FrameSource\FrameSource.h" />
+    <ClInclude Include="FrameSource\FrameSourceFactory.h" />
+    <ClInclude Include="FrameSource\VideoFrameSource.hpp" />
     <ClInclude Include="VideoFrame.hpp" />
-    <ClInclude Include="VideoFrameSource.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

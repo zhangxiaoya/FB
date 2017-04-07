@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="FrameSource">
+      <UniqueIdentifier>{d52a0449-9cd8-4793-bb00-8ed149701e70}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -23,20 +26,20 @@
     <ClInclude Include="VideoFrame.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="FrameSource.h">
-      <Filter>头文件</Filter>
+    <ClInclude Include="FrameSource\CaptureFrameSource.hpp">
+      <Filter>FrameSource</Filter>
     </ClInclude>
-    <ClInclude Include="EmptyFrameSource.hpp">
-      <Filter>头文件</Filter>
+    <ClInclude Include="FrameSource\EmptyFrameSource.hpp">
+      <Filter>FrameSource</Filter>
     </ClInclude>
-    <ClInclude Include="CaptureFrameSource.hpp">
-      <Filter>头文件</Filter>
+    <ClInclude Include="FrameSource\FrameSource.h">
+      <Filter>FrameSource</Filter>
     </ClInclude>
-    <ClInclude Include="VideoFrameSource.hpp">
-      <Filter>头文件</Filter>
+    <ClInclude Include="FrameSource\FrameSourceFactory.h">
+      <Filter>FrameSource</Filter>
     </ClInclude>
-    <ClInclude Include="FrameSourceFactory.h">
-      <Filter>头文件</Filter>
+    <ClInclude Include="FrameSource\VideoFrameSource.hpp">
+      <Filter>FrameSource</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

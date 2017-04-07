@@ -2,8 +2,8 @@
 #include <string>
 #include <opencv.hpp>
 
-#include "FrameSourceFactory.h"
-#include "FrameSource.h"
+#include "FrameSource\FrameSourceFactory.h"
+#include "FrameSource\FrameSource.h"
 
 using namespace std;
 using namespace cv;
