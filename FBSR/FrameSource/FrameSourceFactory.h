@@ -8,7 +8,7 @@ class FrameSourceFactory
 public:
 	static cv::Ptr<FrameSource> createEmptyFrameSource()
 	{
-		return new EmptyFrame();
+		return new EmptyFrameSource();
 	}
 
 	static cv::Ptr<FrameSource> createFrameSourceFromVideo(const string& videoFileName)
