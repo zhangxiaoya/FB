@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 #include <opencv.hpp>
 
 #include "FrameSourceFactory.h"
@@ -9,19 +10,26 @@ using namespace cv;
 
 int main()
 {
-	Mat image = imread("timg.jpg");
+	const string videoFileName = "768x576.avi";
 
-	Ptr<FrameSource> emptyFrame = FrameSourceFactory::createEmptyFrameSource();
+	Ptr<FrameSource> videoFrameSource = FrameSourceFactory::createFrameSourceFromVideo(videoFileName);
 
-	if (image.data)
-	{
-		imshow("Test Image", image);
-		waitKey(0);
+	Mat currentFrame;
 
-		emptyFrame->nextFrame(image);
-		emptyFrame->reset();
+	videoFrameSource->nextFrame(currentFrame);
 
-		destroyAllWindows();
-	}
+	namedWindow("Current Frame");
+	do {
+		if (currentFrame.data)
+		{
+			imshow("Current Frame", currentFrame);
+			waitKey(100);
+		}
+
+		videoFrameSource->nextFrame(currentFrame);
+	} while (currentFrame.data);
+
+	destroyAllWindows();
+
 	return 0;
 }
