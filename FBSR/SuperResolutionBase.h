@@ -10,9 +10,11 @@
 using namespace std;
 using namespace cv;
 
-class SuperResolutionBase : public FrameBuffer
+class SuperResolutionBase
 {
 public:
+
+	SuperResolutionBase(int bufferSize = 8);
 	bool SetFrameSource(const cv::Ptr<FrameSource>& frameSource);
 	bool Reset();
 
@@ -24,5 +26,7 @@ protected:
 
 private:
 	Ptr<FrameSource> frameSource;
+	Ptr<FrameBuffer> frameBuffer;
 	bool isFirstRun;
+	int bufferSize;
 };

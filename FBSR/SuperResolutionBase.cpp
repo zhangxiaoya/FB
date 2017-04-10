@@ -1,5 +1,10 @@
 #include "SuperResolutionBase.h"
 
+SuperResolutionBase::SuperResolutionBase(int bufferSize) : bufferSize(bufferSize)
+{
+	this->frameBuffer = new FrameBuffer(bufferSize);
+}
+
 bool SuperResolutionBase::SetFrameSource(const cv::Ptr<FrameSource>& frameSource)
 {
 	this->frameSource = frameSource;
@@ -26,23 +31,38 @@ void SuperResolutionBase::NextFrame(OutputArray outputFrame)
 
 void SuperResolutionBase::Init(Ptr<FrameSource>& frameSource)
 {
+	Mat currentFrame;
+
 	for (int i = 0; i < bufferSize; ++i)
 	{
 		frameSource->nextFrame(currentFrame);
-		sourceFrames.push_back(currentFrame);
-		currentFrame.copyTo(previousFrame);
+		frameBuffer->Push(currentFrame);
 	}
+
+	currentFrame.release();
 }
 
 void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray outputFrame)
 {
+	/*
+	*
+	* current process is just show image, will finish in the future
+	*
+	*/
 	namedWindow("Current Frame");
-	while (currentFrame.data)
-	{
-		imshow("Current Frame", currentFrame);
-		waitKey(100);
+	
+	Mat currentFrame;
 
+	while (frameBuffer->CurrentFrame().data)
+	{
+		imshow("Current Frame", frameBuffer->CurrentFrame());
+		waitKey(100);
+		imshow("Current Frame", frameBuffer->PreviousFrame());
+		waitKey(100);
 		frameSource->nextFrame(currentFrame);
+		frameBuffer->Push(currentFrame);
 	}
+
+	currentFrame.release();
 	destroyAllWindows();
 }

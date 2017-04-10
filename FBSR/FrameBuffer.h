@@ -12,7 +12,13 @@ public:
 	FrameBuffer(int bufferSize = 8);
 	~FrameBuffer();
 
+	void Push(Mat& frame);
+
+	Mat& CurrentFrame();
+	Mat& PreviousFrame();
+
 protected:
+	int head;
 	int bufferSize;
 	Mat currentFrame;
 	Mat previousFrame;
