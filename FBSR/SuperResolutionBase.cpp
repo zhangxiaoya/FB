@@ -50,6 +50,7 @@ void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray out
 	*
 	*/
 	namedWindow("Current Frame");
+	namedWindow("Previous Frames");
 	
 	Mat currentFrame;
 
@@ -57,8 +58,14 @@ void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray out
 	{
 		imshow("Current Frame", frameBuffer->CurrentFrame());
 		waitKey(100);
-		imshow("Current Frame", frameBuffer->PreviousFrame());
-		waitKey(100);
+
+		vector<Mat> PreviousFrames = frameBuffer->GetAll();
+		for (int i = 0; i < bufferSize; ++i)
+		{
+			imshow("Previous Frames", PreviousFrames[i]);
+			waitKey(100);
+		}
+
 		frameSource->nextFrame(currentFrame);
 		frameBuffer->Push(currentFrame);
 	}

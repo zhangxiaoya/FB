@@ -13,6 +13,7 @@ public:
 	~FrameBuffer();
 
 	void Push(Mat& frame);
+	vector<Mat> GetAll();
 
 	Mat& CurrentFrame();
 	Mat& PreviousFrame();
@@ -23,4 +24,5 @@ protected:
 	Mat currentFrame;
 	Mat previousFrame;
 	vector<Mat> sourceFrames;
+	vector<Mat> returnFrames;
 };
