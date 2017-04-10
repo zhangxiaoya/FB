@@ -5,7 +5,7 @@ void SuperResolutionBTVL1::Init(Ptr<FrameSource>& frameSource)
 	for (int i = 0; i < bufferSize; ++i)
 	{
 		frameSource->nextFrame(currentFrame);
-		sourceFrames.push_back(currentFrame);
+		Push(currentFrame);
 		currentFrame.copyTo(previousFrame);
 	}
 }
@@ -19,6 +19,8 @@ void SuperResolutionBTVL1::Process(Ptr<FrameSource>& frameSource, OutputArray ou
 		waitKey(100);
 
 		frameSource->nextFrame(currentFrame);
+		Push(currentFrame);
+		currentFrame.copyTo(previousFrame);
 	}
 	destroyAllWindows();
 }
