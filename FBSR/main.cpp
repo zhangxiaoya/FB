@@ -4,6 +4,8 @@
 
 #include "FrameSource\FrameSourceFactory.h"
 #include "FrameSource\FrameSource.h"
+#include "SuperResolutionBase.h"
+#include "SuperResolutionFactory.h"
 
 using namespace std;
 using namespace cv;
@@ -15,21 +17,12 @@ int main()
 	Ptr<FrameSource> videoFrameSource = FrameSourceFactory::createFrameSourceFromVideo(videoFileName);
 
 	Mat currentFrame;
+	
+	Ptr<SuperResolutionBase> superResolution = SuperResolutionFactory::CreateSuperResolutionBTVL1();
 
-	videoFrameSource->nextFrame(currentFrame);
+	superResolution->SetFrameSource(videoFrameSource);
 
-	namedWindow("Current Frame");
-	do {
-		if (currentFrame.data)
-		{
-			imshow("Current Frame", currentFrame);
-			waitKey(100);
-		}
-
-		videoFrameSource->nextFrame(currentFrame);
-	} while (currentFrame.data);
-
-	destroyAllWindows();
+	superResolution->NextFrame(currentFrame);
 
 	return 0;
 }

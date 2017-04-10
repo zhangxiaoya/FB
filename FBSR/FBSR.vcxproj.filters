@@ -21,11 +21,23 @@
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="MultiFrameProcesser.hpp">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="SuperResolutionBase.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="SuperResolutionBTVL1.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="SuperResolutionBTVL1.h">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameBuffer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="VideoFrame.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="FrameSource\CaptureFrameSource.hpp">
       <Filter>FrameSource</Filter>
     </ClInclude>
@@ -40,6 +52,15 @@
     </ClInclude>
     <ClInclude Include="FrameSource\VideoFrameSource.hpp">
       <Filter>FrameSource</Filter>
+    </ClInclude>
+    <ClInclude Include="SuperResolutionFactory.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SuperResolutionBase.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameBuffer.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
