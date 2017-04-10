@@ -3,7 +3,7 @@
 #include "FrameBuffer.h"
 #include "SuperResolutionBase.h"
 
-class SuperResolutionBTVL1 : public SuperResolutionBase, public FrameBuffer
+class SuperResolutionBTVL1 : public SuperResolutionBase
 {
 public:
 	void Init(Ptr<FrameSource>& frameSource);

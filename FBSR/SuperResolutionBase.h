@@ -4,12 +4,13 @@
 #include <opencv2\highgui\highgui.hpp>
 #include <opencv2\imgproc\imgproc.hpp>
 
+#include "FrameBuffer.h"
 #include "FrameSource\FrameSource.h"
 
 using namespace std;
 using namespace cv;
 
-class SuperResolutionBase
+class SuperResolutionBase : public FrameBuffer
 {
 public:
 	bool SetFrameSource(const cv::Ptr<FrameSource>& frameSource);
@@ -18,8 +19,8 @@ public:
 	void NextFrame(OutputArray outputFrame);
 
 protected:
-	virtual void Init(Ptr<FrameSource>& frameSource) = 0;
-	virtual void Process(Ptr<FrameSource>& frameSource, OutputArray output) = 0;
+	void Init(Ptr<FrameSource>& frameSource);
+	void Process(Ptr<FrameSource>& frameSource, OutputArray output);
 
 private:
 	Ptr<FrameSource> frameSource;

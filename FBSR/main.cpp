@@ -18,7 +18,9 @@ int main()
 
 	Mat currentFrame;
 	
-	Ptr<SuperResolutionBase> superResolution = SuperResolutionFactory::CreateSuperResolutionBTVL1();
+	//Ptr<SuperResolutionBase> superResolution = SuperResolutionFactory::CreateSuperResolutionBTVL1();
+
+	Ptr<SuperResolutionBase> superResolution = SuperResolutionFactory::CreateSuperResolutionBase();
 
 	superResolution->SetFrameSource(videoFrameSource);
 
