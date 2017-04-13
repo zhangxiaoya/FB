@@ -13,6 +13,7 @@ public:
 	~FrameBuffer();
 
 	void Push(Mat& frame);
+	void PushGray(Mat& frame);
 	vector<Mat> GetAll();
 
 	Mat& CurrentFrame();

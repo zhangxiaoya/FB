@@ -1,5 +1,6 @@
 
 #include "FrameBuffer.h"
+#include <opencv2/imgproc/imgproc.hpp>
 
 FrameBuffer::FrameBuffer(int bufferSize) : head(0), bufferSize(bufferSize)
 {
@@ -18,6 +19,17 @@ FrameBuffer::~FrameBuffer()
 void FrameBuffer::Push(Mat& frame)
 {
 	frame.copyTo(sourceFrames[head]);
+	head += 1;
+	if (head >= bufferSize)
+		head %= bufferSize;
+}
+
+void FrameBuffer::PushGray(Mat& frame)
+{
+	Mat grayFrame;
+	cvtColor(frame, grayFrame, CV_BGR2GRAY);
+
+	grayFrame.copyTo(sourceFrames[head]);
 	head += 1;
 	if (head >= bufferSize)
 		head %= bufferSize;

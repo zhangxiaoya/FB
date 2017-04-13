@@ -42,6 +42,9 @@
     <ClCompile Include="SuperResolution\FrameBuffer\FrameBuffer.cpp">
       <Filter>SuperResolution\FrameBuffer</Filter>
     </ClCompile>
+    <ClCompile Include="LKOFlow\LKOFlow.cpp">
+      <Filter>LKOFlow</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FrameSource\CaptureFrameSource.hpp">
@@ -59,9 +62,6 @@
     <ClInclude Include="FrameSource\VideoFrameSource.hpp">
       <Filter>FrameSource</Filter>
     </ClInclude>
-    <ClInclude Include="LKOFlow\LKOFlow.hpp">
-      <Filter>LKOFlow</Filter>
-    </ClInclude>
     <ClInclude Include="SuperResolution\SuperResolutionFactory.h">
       <Filter>SuperResolution</Filter>
     </ClInclude>
@@ -73,6 +73,12 @@
     </ClInclude>
     <ClInclude Include="SuperResolution\FrameBuffer\FrameBuffer.h">
       <Filter>SuperResolution\FrameBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="PropsStruct.h">
+      <Filter>SuperResolution</Filter>
+    </ClInclude>
+    <ClInclude Include="LKOFlow\LKOFlow.h">
+      <Filter>LKOFlow</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

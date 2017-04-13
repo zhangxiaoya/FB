@@ -1,41 +1,13 @@
-#pragma once
-
-#include <opencv2/core/core.hpp>
+﻿#include "LKOFlow.h"
 #include <opencv2/imgproc/imgproc.hpp>
-#include <vector>
 #include <cmath>
 
-using namespace std;
-using namespace cv;
 
-class LKOFlow
-{
-public:
-	static vector<double> PyramidalLKOpticalFlow(Mat& img1, Mat& img2, Rect& ROI);
-
-private:
-	static void GaussianPyramid(Mat& img, vector<Mat>& pyramid, int levels);
-
-	static double MyNorm(const Mat& mat);
-
-	static void IterativeLKOpticalFlow(Mat& Pyramid1, Mat& Pyramid2, Point topLeft, Point bottomRight, vector<double>& disc);
-
-	static void ComputeLKFlowParms(Mat& img, Mat& Ht, Mat& G);
-
-	static Mat MergeTwoRows(Mat& up, Mat& down);
-
-	static Mat MergeTwoCols(Mat left, Mat right);
-
-	static Mat ResampleImg(Mat& img, Rect& rect, vector<double> disc);
-
-	static void Meshgrid(const Range& xgv, const Range& ygv, Mat& X, Mat& Y);
-};
-
-inline vector<double> LKOFlow::PyramidalLKOpticalFlow(Mat& img1, Mat& img2, Rect& ROI)
+vector<double> LKOFlow::PyramidalLKOpticalFlow(Mat& img1, Mat& img2, Rect& ROI)
 {
 	Mat image1, image2;
-	img1.convertTo(image1,CV_32F);
-	img2.convertTo(image2,CV_32F);
+	img1.convertTo(image1, CV_32F);
+	img2.convertTo(image2, CV_32F);
 
 	auto ROISize = ROI.size();
 
@@ -49,7 +21,7 @@ inline vector<double> LKOFlow::PyramidalLKOpticalFlow(Mat& img1, Mat& img2, Rect
 	GaussianPyramid(image1, image1Pyramid, levels);
 	GaussianPyramid(image2, image2Pyramid, levels);
 
-	vector<double> distance = {0.0,0.0};
+	vector<double> distance = { 0.0,0.0 };
 
 	for (auto currentLevel = levels - 1; currentLevel >= 0; --currentLevel)
 	{
@@ -76,7 +48,7 @@ inline vector<double> LKOFlow::PyramidalLKOpticalFlow(Mat& img1, Mat& img2, Rect
 	return distance;
 }
 
-inline void LKOFlow::GaussianPyramid(Mat& img, vector<Mat>& pyramid, int levels)
+void LKOFlow::GaussianPyramid(Mat& img, vector<Mat>& pyramid, int levels)
 {
 	img.copyTo(pyramid[0]);
 
@@ -95,16 +67,16 @@ inline void LKOFlow::GaussianPyramid(Mat& img, vector<Mat>& pyramid, int levels)
 	}
 }
 
-inline double LKOFlow::MyNorm(const Mat& mat)
+double LKOFlow::MyNorm(const Mat& mat)
 {
 	/*
-	 * special use: Mat is a (2*1) vector, only get norm of this vector
-	 */
+	* special use: Mat is a (2*1) vector, only get norm of this vector
+	*/
 	double sum = mat.at<float>(0, 0) * mat.at<float>(0, 0) + mat.at<float>(1, 0) * mat.at<float>(1, 0);
 	return sqrt(sum);
 }
 
-inline void LKOFlow::IterativeLKOpticalFlow(Mat& img1, Mat& img2, Point topLeft, Point bottomRight, vector<double>& distance)
+void LKOFlow::IterativeLKOpticalFlow(Mat& img1, Mat& img2, Point topLeft, Point bottomRight, vector<double>& distance)
 {
 	auto oldDistance = distance;
 
@@ -141,7 +113,7 @@ inline void LKOFlow::IterativeLKOpticalFlow(Mat& img1, Mat& img2, Point topLeft,
 	}
 }
 
-inline void LKOFlow::ComputeLKFlowParms(Mat& img, Mat& Ht, Mat& G)
+void LKOFlow::ComputeLKFlowParms(Mat& img, Mat& Ht, Mat& G)
 {
 	Mat SobelX, SobelY;
 	Sobel(img, SobelX, CV_32F, 1, 0);
@@ -163,7 +135,7 @@ inline void LKOFlow::ComputeLKFlowParms(Mat& img, Mat& Ht, Mat& G)
 	G = Ht * H;
 }
 
-inline Mat LKOFlow::MergeTwoRows(Mat& up, Mat& down)
+Mat LKOFlow::MergeTwoRows(Mat& up, Mat& down)
 {
 	auto totalRows = up.rows + down.rows;
 
@@ -177,7 +149,7 @@ inline Mat LKOFlow::MergeTwoRows(Mat& up, Mat& down)
 	return mergedMat;
 }
 
-inline Mat LKOFlow::MergeTwoCols(Mat left, Mat right)
+Mat LKOFlow::MergeTwoCols(Mat left, Mat right)
 {
 	auto totalCols = left.cols + right.cols;
 
@@ -191,7 +163,7 @@ inline Mat LKOFlow::MergeTwoCols(Mat left, Mat right)
 	return mergedDescriptors;
 }
 
-inline Mat LKOFlow::ResampleImg(Mat& img, Rect& rect, vector<double> disc)
+Mat LKOFlow::ResampleImg(Mat& img, Rect& rect, vector<double> disc)
 {
 	Mat X, Y;
 	auto leftTop = rect.tl();
@@ -209,7 +181,7 @@ inline Mat LKOFlow::ResampleImg(Mat& img, Rect& rect, vector<double> disc)
 	return result;
 }
 
-inline void LKOFlow::Meshgrid(const Range& xgv, const Range& ygv, Mat& X, Mat& Y)
+void LKOFlow::Meshgrid(const Range& xgv, const Range& ygv, Mat& X, Mat& Y)
 {
 	vector<int> t_x, t_y;
 

@@ -93,7 +93,7 @@
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opencv_core2413d.lib;opencv_highgui2413d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_core2413d.lib;opencv_highgui2413d.lib;opencv_imgproc2413d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -123,6 +123,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="LKOFlow\LKOFlow.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MultiFrameProcesser.hpp" />
     <ClCompile Include="SuperResolution\FrameBuffer\FrameBuffer.cpp" />
@@ -135,7 +136,8 @@
     <ClInclude Include="FrameSource\FrameSource.h" />
     <ClInclude Include="FrameSource\FrameSourceFactory.h" />
     <ClInclude Include="FrameSource\VideoFrameSource.hpp" />
-    <ClInclude Include="LKOFlow\LKOFlow.hpp" />
+    <ClInclude Include="LKOFlow\LKOFlow.h" />
+    <ClInclude Include="PropsStruct.h" />
     <ClInclude Include="SuperResolution\FrameBuffer\FrameBuffer.h" />
     <ClInclude Include="SuperResolution\SuperResolutionBase.h" />
     <ClInclude Include="SuperResolution\SuperResolutionBTVL1.h" />
