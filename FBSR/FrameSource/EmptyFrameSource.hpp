@@ -4,16 +4,16 @@
 class EmptyFrameSource : public FrameSource
 {
 public:
-	void nextFrame(cv::OutputArray frame);
-	void reset();
+	void nextFrame(cv::OutputArray frame) override;
+	void reset() override;
 };
 
-void EmptyFrameSource::nextFrame(cv::OutputArray frame)
+inline void EmptyFrameSource::nextFrame(cv::OutputArray frame)
 {
 	frame.release();
 }
 
-void EmptyFrameSource::reset()
+inline void EmptyFrameSource::reset()
 {
 
 }

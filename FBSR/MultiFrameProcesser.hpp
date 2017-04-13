@@ -1,8 +1,6 @@
 #pragma once
 
-#include <opencv2\core\core.hpp>
-
-#include "FrameSource\FrameSource.h"
+#include <opencv2/core/core.hpp>
 
 using namespace cv;
 
@@ -13,7 +11,7 @@ protected:
 
 };
 
-void MultiFrameProcesser::SuperResolutionProcess(OutputArray ouputFrame)
+inline void MultiFrameProcesser::SuperResolutionProcess(OutputArray ouputFrame)
 {
 	// do nothing now, will finish soon
 }

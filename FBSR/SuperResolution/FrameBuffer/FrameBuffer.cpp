@@ -1,7 +1,7 @@
 
 #include "FrameBuffer.h"
 
-FrameBuffer::FrameBuffer(int bufferSize) : bufferSize(bufferSize), head(0)
+FrameBuffer::FrameBuffer(int bufferSize) : head(0), bufferSize(bufferSize)
 {
 	sourceFrames.resize(this->bufferSize);
 	returnFrames.resize(this->bufferSize);
@@ -25,7 +25,7 @@ void FrameBuffer::Push(Mat& frame)
 
 vector<Mat> FrameBuffer::GetAll()
 {
-	for (int i = head, j = 0; j < bufferSize;j++)
+	for (auto i = head, j = 0; j < bufferSize;j++)
 	{
 		returnFrames[j] = sourceFrames[i];
 		i += 1;
@@ -36,12 +36,12 @@ vector<Mat> FrameBuffer::GetAll()
 
 Mat& FrameBuffer::CurrentFrame()
 {
-	int currentIndex = (head + bufferSize - 1) % bufferSize;
+	auto currentIndex = (head + bufferSize - 1) % bufferSize;
 	return sourceFrames[currentIndex];
 }
 
 Mat& FrameBuffer::PreviousFrame()
 {
-	int previousIndex = (head + bufferSize - 2) % bufferSize;
+	auto previousIndex = (head + bufferSize - 2) % bufferSize;
 	return sourceFrames[previousIndex];
 }

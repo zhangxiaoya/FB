@@ -1,6 +1,7 @@
 #include "SuperResolutionBase.h"
+#include <highgui/highgui.hpp>
 
-SuperResolutionBase::SuperResolutionBase(int bufferSize) : bufferSize(bufferSize)
+SuperResolutionBase::SuperResolutionBase(int bufferSize) : isFirstRun(false), bufferSize(bufferSize)
 {
 	this->frameBuffer = new FrameBuffer(bufferSize);
 }
@@ -33,7 +34,7 @@ void SuperResolutionBase::Init(Ptr<FrameSource>& frameSource)
 {
 	Mat currentFrame;
 
-	for (int i = 0; i < bufferSize; ++i)
+	for (auto i = 0; i < bufferSize; ++i)
 	{
 		frameSource->nextFrame(currentFrame);
 		frameBuffer->Push(currentFrame);
@@ -59,8 +60,8 @@ void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray out
 		imshow("Current Frame", frameBuffer->CurrentFrame());
 		waitKey(100);
 
-		vector<Mat> PreviousFrames = frameBuffer->GetAll();
-		for (int i = 0; i < bufferSize; ++i)
+		auto PreviousFrames = frameBuffer->GetAll();
+		for (auto i = 0; i < bufferSize; ++i)
 		{
 			imshow("Previous Frames", PreviousFrames[i]);
 			waitKey(100);
