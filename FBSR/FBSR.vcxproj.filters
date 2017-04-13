@@ -19,6 +19,12 @@
     <Filter Include="LKOFlow">
       <UniqueIdentifier>{05e17192-2d6f-417d-ad16-8f436e18cab1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SuperResolution">
+      <UniqueIdentifier>{a3ceaa1e-5d6e-4eb5-b316-1c7e37b38198}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SuperResolution\FrameBuffer">
+      <UniqueIdentifier>{3902f390-4633-43ed-a99a-261550aac64d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -27,17 +33,14 @@
     <ClCompile Include="MultiFrameProcesser.hpp">
       <Filter>头文件</Filter>
     </ClCompile>
-    <ClCompile Include="SuperResolutionBase.cpp">
-      <Filter>源文件</Filter>
+    <ClCompile Include="SuperResolution\SuperResolutionBTVL1.cpp">
+      <Filter>SuperResolution</Filter>
     </ClCompile>
-    <ClCompile Include="SuperResolutionBTVL1.cpp">
-      <Filter>源文件</Filter>
+    <ClCompile Include="SuperResolution\SuperResolutionBase.cpp">
+      <Filter>SuperResolution</Filter>
     </ClCompile>
-    <ClCompile Include="SuperResolutionBTVL1.h">
-      <Filter>头文件</Filter>
-    </ClCompile>
-    <ClCompile Include="FrameBuffer.cpp">
-      <Filter>源文件</Filter>
+    <ClCompile Include="SuperResolution\FrameBuffer\FrameBuffer.cpp">
+      <Filter>SuperResolution\FrameBuffer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -56,17 +59,20 @@
     <ClInclude Include="FrameSource\VideoFrameSource.hpp">
       <Filter>FrameSource</Filter>
     </ClInclude>
-    <ClInclude Include="SuperResolutionFactory.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="SuperResolutionBase.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="FrameBuffer.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="LKOFlow\LKOFlow.hpp">
       <Filter>LKOFlow</Filter>
+    </ClInclude>
+    <ClInclude Include="SuperResolution\SuperResolutionFactory.h">
+      <Filter>SuperResolution</Filter>
+    </ClInclude>
+    <ClInclude Include="SuperResolution\SuperResolutionBTVL1.h">
+      <Filter>SuperResolution</Filter>
+    </ClInclude>
+    <ClInclude Include="SuperResolution\SuperResolutionBase.h">
+      <Filter>SuperResolution</Filter>
+    </ClInclude>
+    <ClInclude Include="SuperResolution\FrameBuffer\FrameBuffer.h">
+      <Filter>SuperResolution\FrameBuffer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,11 +1,11 @@
 #pragma once
 
-#include <opencv2\core\core.hpp>
-#include <opencv2\highgui\highgui.hpp>
-#include <opencv2\imgproc\imgproc.hpp>
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
-#include "FrameBuffer.h"
-#include "FrameSource\FrameSource.h"
+#include "FrameBuffer/FrameBuffer.h"
+#include "../FrameSource/FrameSource.h"
 
 using namespace std;
 using namespace cv;
@@ -14,7 +14,7 @@ class SuperResolutionBase
 {
 public:
 
-	SuperResolutionBase(int bufferSize = 8);
+	explicit SuperResolutionBase(int bufferSize = 8);
 	bool SetFrameSource(const cv::Ptr<FrameSource>& frameSource);
 	bool Reset();
 

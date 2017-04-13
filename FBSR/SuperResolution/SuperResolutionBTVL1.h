@@ -1,6 +1,5 @@
 #pragma once
 
-#include "FrameBuffer.h"
 #include "SuperResolutionBase.h"
 
 class SuperResolutionBTVL1 : public SuperResolutionBase

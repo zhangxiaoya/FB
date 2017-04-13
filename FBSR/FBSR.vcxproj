@@ -123,23 +123,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="FrameBuffer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MultiFrameProcesser.hpp" />
-    <ClCompile Include="SuperResolutionBase.cpp" />
-    <ClCompile Include="SuperResolutionBTVL1.cpp" />
-    <ClCompile Include="SuperResolutionBTVL1.h" />
+    <ClCompile Include="SuperResolution\FrameBuffer\FrameBuffer.cpp" />
+    <ClCompile Include="SuperResolution\SuperResolutionBase.cpp" />
+    <ClCompile Include="SuperResolution\SuperResolutionBTVL1.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="FrameSource\CaptureFrameSource.hpp" />
     <ClInclude Include="FrameSource\EmptyFrameSource.hpp" />
     <ClInclude Include="FrameSource\FrameSource.h" />
     <ClInclude Include="FrameSource\FrameSourceFactory.h" />
     <ClInclude Include="FrameSource\VideoFrameSource.hpp" />
     <ClInclude Include="LKOFlow\LKOFlow.hpp" />
-    <ClInclude Include="SuperResolutionBase.h" />
-    <ClInclude Include="SuperResolutionFactory.h" />
+    <ClInclude Include="SuperResolution\FrameBuffer\FrameBuffer.h" />
+    <ClInclude Include="SuperResolution\SuperResolutionBase.h" />
+    <ClInclude Include="SuperResolution\SuperResolutionBTVL1.h" />
+    <ClInclude Include="SuperResolution\SuperResolutionFactory.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
