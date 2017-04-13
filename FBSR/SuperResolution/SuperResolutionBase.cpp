@@ -54,6 +54,58 @@ void SuperResolutionBase::Init(Ptr<FrameSource>& frameSource)
 	currentFrame.release();
 }
 
+int SuperResolutionBase::GetTrueCount(const vector<bool>& index)
+{
+	auto count = 0;
+	for (auto curElem : index)
+		curElem ? count++ : count;
+	return count;
+}
+
+void SuperResolutionBase::UpdateZ(Mat& mat, int x, int y, const vector<bool>& index, const vector<Mat>& mats)
+{
+
+}
+
+void SuperResolutionBase::MedianAndShift(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances, const Size& new_size, Mat& Z, Mat& A)
+{
+	Z = Mat::zeros(new_size, CV_8UC1);
+	A = Mat::ones(new_size, CV_8UC1);
+
+	Mat S = Mat::zeros(Size(srFactor, srFactor), CV_8UC1);
+
+	vector<bool> index;
+	for (auto x = srFactor; x < 2 * srFactor; ++x)
+	{
+		for (auto y = srFactor; y < 2 * srFactor; ++y)
+		{
+			for (auto k = 0; k < current_distances.size(); ++k)
+			{
+				if (current_distances[k][0] == x && current_distances[k][1] == y)
+					index.push_back(true);
+				else
+					index.push_back(false);
+			}
+
+			auto len = GetTrueCount(index);
+			if (len > 0)
+			{
+				S.at<uchar>(x - srFactor, y - srFactor) = 1;
+
+				UpdateZ(Z, x, y, index,interp_previous_frames);
+//				UpdateA(A, x, y, len);
+			}
+		}
+	}
+}
+
+void SuperResolutionBase::FastRobustSR(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances)
+{
+	Mat Z, A;
+	Size newSize((frameSize.width + 1) * srFactor - 1,(frameSize.height + 1) *srFactor -1);
+	MedianAndShift(interp_previous_frames,current_distances,newSize,Z,A);
+}
+
 vector<Mat> SuperResolutionBase::NearestInterp2(const vector<Mat>& previousFrames, const vector<vector<double>>& distances) const
 {
 	Mat X, Y;
@@ -93,6 +145,8 @@ void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray out
 		auto currentDistances = RegisterImages(previous_frames);
 		auto restDistances = CollectParms(currentDistances);
 		auto interpPreviousFrames = NearestInterp2(previous_frames, restDistances);
+
+		FastRobustSR(interpPreviousFrames, currentDistances);
 
 		/*
 		 for (auto i = 0; i < bufferSize; ++i)
