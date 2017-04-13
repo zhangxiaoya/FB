@@ -16,6 +16,9 @@
     <Filter Include="FrameSource">
       <UniqueIdentifier>{d52a0449-9cd8-4793-bb00-8ed149701e70}</UniqueIdentifier>
     </Filter>
+    <Filter Include="LKOFlow">
+      <UniqueIdentifier>{05e17192-2d6f-417d-ad16-8f436e18cab1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -61,6 +64,9 @@
     </ClInclude>
     <ClInclude Include="FrameBuffer.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="LKOFlow\LKOFlow.hpp">
+      <Filter>LKOFlow</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

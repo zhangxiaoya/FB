@@ -137,6 +137,7 @@
     <ClInclude Include="FrameSource\FrameSource.h" />
     <ClInclude Include="FrameSource\FrameSourceFactory.h" />
     <ClInclude Include="FrameSource\VideoFrameSource.hpp" />
+    <ClInclude Include="LKOFlow\LKOFlow.hpp" />
     <ClInclude Include="SuperResolutionBase.h" />
     <ClInclude Include="SuperResolutionFactory.h" />
   </ItemGroup>
