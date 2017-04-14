@@ -1,6 +1,8 @@
 #include "SuperResolutionBase.h"
 #include <highgui/highgui.hpp>
 #include <contrib/contrib.hpp>
+#include "../LKOFlow/LKOFlow.h"
+#include <algorithm>
 
 SuperResolutionBase::SuperResolutionBase(int bufferSize) : isFirstRun(false), bufferSize(bufferSize), srFactor(4), psfSize(3), psfSigma(1.0)
 {
@@ -222,6 +224,42 @@ Mat SuperResolutionBase::FastGradientBackProject(const Mat& hr, const Mat& Z, co
 	return res;
 }
 
+Mat SuperResolutionBase::GradientRegulization(const Mat& hr, double p, double alpha)
+{
+	Mat G = Mat::zeros(hr.rows, hr.cols, CV_32FC1);
+
+	Mat paddedHr;
+	copyMakeBorder(hr, paddedHr, p, p, p, p, BORDER_REFLECT);
+	for (int i = -1 * p; i <= p; ++i)
+	{
+		for (int j = -1 * p; j <= p; ++j)
+		{
+			Rect rectOne(Point(0 + p - i, 0 + p - j), Point(paddedHr.cols - 1 - p - i, paddedHr.rows - 1 - p - j));
+			auto selectMat = paddedHr(rectOne);
+
+			Mat dis = hr - selectMat;
+
+			Mat Xsign(dis.rows, dis.cols, CV_8UC1);
+			MySign(dis, Xsign);
+
+			Mat paddedXsign;
+			copyMakeBorder(Xsign, paddedXsign, p, p, p, p, BORDER_CONSTANT, 0);
+
+			Rect receTwo(Point(0 + p + i, 0 + p + j), Point(paddedXsign.cols - 1 - p + i, paddedXsign.rows - 1 - p + j));
+			auto selectedXsign = paddedXsign(receTwo);
+
+			Mat diss = Xsign - selectedXsign;
+
+			selectedXsign *= (abs(i) + abs(j));
+			Mat tempRes;
+			pow(selectedXsign, props.alpha, tempRes);
+
+			G += tempRes;
+		}
+	}
+	return G;
+}
+
 void SuperResolutionBase::FastRobustSR(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances, Mat hpsf)
 {
 	Mat Z, A;
@@ -236,6 +274,9 @@ void SuperResolutionBase::FastRobustSR(const vector<Mat>& interp_previous_frames
 	while(iter < props.maxIterationCount)
 	{
 		auto Gback = FastGradientBackProject(HR, Z, A, hpsf);
+		auto Greg = GradientRegulization(HR, props.P, props.alpha);
+
+
 	}
 }
 
