@@ -187,12 +187,12 @@ void SuperResolutionBase::MedianAndShift(const vector<Mat>& interp_previous_fram
 
 void SuperResolutionBase::MySign(const Mat& srcMat, Mat& destMat) const
 {
-	for(auto r=0;r<srcMat.rows;++r)
+	for (auto r = 0; r < srcMat.rows; ++r)
 	{
 		auto perLineSrc = srcMat.ptr<uchar>(r);
 		auto perLineDest = destMat.ptr<uchar>(r);
 
-		for(auto c = 0;c < srcMat.cols;++c)
+		for (auto c = 0; c < srcMat.cols; ++c)
 		{
 			if (static_cast<int>(perLineSrc[c]) > 0)
 				perLineDest[c] = static_cast<uchar>(1);
@@ -215,7 +215,7 @@ Mat SuperResolutionBase::FastGradientBackProject(const Mat& hr, const Mat& Z, co
 	MySign(resMul, Gsign);
 
 	Mat newhpsf;
-	flip(hpsf,newhpsf,-1);
+	flip(hpsf, newhpsf, -1);
 	Mat newA = A.mul(Gsign);
 
 	Mat res;
@@ -271,12 +271,15 @@ void SuperResolutionBase::FastRobustSR(const vector<Mat>& interp_previous_frames
 
 	auto iter = 0;
 
-	while(iter < props.maxIterationCount)
+	while (iter < props.maxIterationCount)
 	{
 		auto Gback = FastGradientBackProject(HR, Z, A, hpsf);
 		auto Greg = GradientRegulization(HR, props.P, props.alpha);
 
+		Mat temRes = (Greg + Greg.mul(props.lambda));
+		HR -= temRes.mul(props.beta);
 
+		iter = iter + 1;
 	}
 }
 
@@ -345,7 +348,7 @@ void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray out
 
 		auto Hpsf = GetGaussianKernal();
 
-		FastRobustSR(interpPreviousFrames, currentDistances,Hpsf);
+		FastRobustSR(interpPreviousFrames, currentDistances, Hpsf);
 
 		/*
 		 for (auto i = 0; i < bufferSize; ++i)
