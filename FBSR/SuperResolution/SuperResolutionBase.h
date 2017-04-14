@@ -23,6 +23,10 @@ public:
 
 protected:
 	void Init(Ptr<FrameSource>& frameSource);
+	int GetTrueCount(const vector<bool>& index);
+	void UpdateZ(Mat& mat, int x, int y, const vector<bool>& index, const vector<Mat>& mats);
+	void MedianAndShift(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances, const Size& new_size, Mat& mat, Mat& mat1);
+	void FastRobustSR(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances);
 	void Process(Ptr<FrameSource>& frameSource, OutputArray output);
 	vector<Mat> NearestInterp2(const vector<Mat>& previousFrames, const vector<vector<double>>& currentDistances) const;
 
