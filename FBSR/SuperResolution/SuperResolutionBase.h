@@ -29,7 +29,10 @@ protected:
 	void MedianThirdDim(const Mat& merged_frame, Mat& median_frame);
 	void UpdateZAndA(Mat& mat, Mat& A, int x, int y, const vector<bool>& index, const vector<Mat>& mats, const int len);
 	void MedianAndShift(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances, const Size& new_size, Mat& mat, Mat& mat1);
-	void FastRobustSR(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances);
+	void MySign(const Mat& srcMat, Mat& destMat) const;
+	Mat FastGradientBackProject(const Mat& hr, const Mat& mat, const Mat& mat1, const Mat& hpsf) const;
+	void FastRobustSR(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances, Mat hpsf);
+	Mat GetGaussianKernal() const;
 	void Process(Ptr<FrameSource>& frameSource, OutputArray output);
 	vector<Mat> NearestInterp2(const vector<Mat>& previousFrames, const vector<vector<double>>& currentDistances) const;
 
