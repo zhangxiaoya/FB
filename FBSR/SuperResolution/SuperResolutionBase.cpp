@@ -183,11 +183,83 @@ void SuperResolutionBase::MedianAndShift(const vector<Mat>& interp_previous_fram
 	copiedA.copyTo(A);
 }
 
-void SuperResolutionBase::FastRobustSR(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances)
+void SuperResolutionBase::MySign(const Mat& srcMat, Mat& destMat) const
+{
+	for(auto r=0;r<srcMat.rows;++r)
+	{
+		auto perLineSrc = srcMat.ptr<uchar>(r);
+		auto perLineDest = destMat.ptr<uchar>(r);
+
+		for(auto c = 0;c < srcMat.cols;++c)
+		{
+			if (static_cast<int>(perLineSrc[c]) > 0)
+				perLineDest[c] = static_cast<uchar>(1);
+			else if (static_cast<int>(perLineSrc[c]) < 0)
+				perLineDest[c] = static_cast<uchar>(-1);
+			else
+				perLineDest[c] = static_cast<uchar>(0);
+		}
+	}
+}
+
+Mat SuperResolutionBase::FastGradientBackProject(const Mat& hr, const Mat& Z, const Mat& A, const Mat& hpsf) const
+{
+	Mat newZ;
+	filter2D(Z, newZ, CV_32FC1, hpsf, Point(-1, -1), 0, BORDER_REFLECT);
+	Mat dis = newZ - Z;
+	Mat resMul = A.mul(dis);
+
+	Mat Gsign(resMul.rows, resMul.cols, CV_8UC1);
+	MySign(resMul, Gsign);
+
+	Mat newhpsf;
+	flip(hpsf,newhpsf,-1);
+	Mat newA = A.mul(Gsign);
+
+	Mat res;
+	filter2D(newA, res, CV_32FC1, newhpsf, Point(-1, -1), 0, BORDER_REFLECT);
+
+	return res;
+}
+
+void SuperResolutionBase::FastRobustSR(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances, Mat hpsf)
 {
 	Mat Z, A;
 	Size newSize((frameSize.width + 1) * srFactor - 1, (frameSize.height + 1) * srFactor - 1);
 	MedianAndShift(interp_previous_frames, current_distances, newSize, Z, A);
+
+	Mat HR;
+	Z.copyTo(HR);
+
+	auto iter = 0;
+
+	while(iter < props.maxIterationCount)
+	{
+		auto Gback = FastGradientBackProject(HR, Z, A, hpsf);
+	}
+}
+
+Mat SuperResolutionBase::GetGaussianKernal() const
+{
+	auto halfSize = (srFactor - 1) / 2;
+	Mat K(srFactor, srFactor, CV_32FC1);
+
+	auto s2 = 2.0 * psfSigma * psfSigma;
+	for (auto i = (-halfSize); i <= halfSize; i++)
+	{
+		auto m = i + halfSize;
+		for (auto j = (-halfSize); j <= halfSize; j++)
+		{
+			auto n = j + halfSize;
+			float v = exp(-(1.0 * i * i + 1.0 * j * j) / s2);
+			K.ptr<float>(m)[n] = v;
+		}
+	}
+	auto all = sum(K);
+	Mat gaussK;
+	K.convertTo(gaussK, CV_32FC1, (1 / all[0]));
+
+	return gaussK;
 }
 
 vector<Mat> SuperResolutionBase::NearestInterp2(const vector<Mat>& previousFrames, const vector<vector<double>>& distances) const
@@ -230,7 +302,9 @@ void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray out
 		auto restDistances = CollectParms(currentDistances);
 		auto interpPreviousFrames = NearestInterp2(previous_frames, restDistances);
 
-		FastRobustSR(interpPreviousFrames, currentDistances);
+		auto Hpsf = GetGaussianKernal();
+
+		FastRobustSR(interpPreviousFrames, currentDistances,Hpsf);
 
 		/*
 		 for (auto i = 0; i < bufferSize; ++i)
