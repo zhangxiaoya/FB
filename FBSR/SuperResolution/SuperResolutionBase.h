@@ -6,6 +6,7 @@
 #include "../FrameSource/FrameSource.h"
 #include "../PropsStruct.h"
 #include "../LKOFlow/LKOFlow.h"
+#include <algorithm>
 
 using namespace std;
 using namespace cv;
@@ -24,7 +25,9 @@ public:
 protected:
 	void Init(Ptr<FrameSource>& frameSource);
 	int GetTrueCount(const vector<bool>& index);
-	void UpdateZ(Mat& mat, int x, int y, const vector<bool>& index, const vector<Mat>& mats);
+	float median(vector<unsigned char>& vector) const;
+	void MedianThirdDim(const Mat& merged_frame, Mat& median_frame);
+	void UpdateZAndA(Mat& mat, Mat& A, int x, int y, const vector<bool>& index, const vector<Mat>& mats, const int len);
 	void MedianAndShift(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances, const Size& new_size, Mat& mat, Mat& mat1);
 	void FastRobustSR(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances);
 	void Process(Ptr<FrameSource>& frameSource, OutputArray output);
@@ -43,7 +46,6 @@ private:
 	Ptr<FrameBuffer> frameBuffer;
 	bool isFirstRun;
 	int bufferSize;
-
 	Size frameSize;
 
 	int srFactor;

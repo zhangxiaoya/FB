@@ -50,7 +50,7 @@ void SuperResolutionBase::Init(Ptr<FrameSource>& frameSource)
 		frameBuffer->PushGray(currentFrame);
 	}
 
-	frameSize = Size(currentFrame.rows,currentFrame.cols);
+	frameSize = Size(currentFrame.rows, currentFrame.cols);
 	currentFrame.release();
 }
 
@@ -62,15 +62,61 @@ int SuperResolutionBase::GetTrueCount(const vector<bool>& index)
 	return count;
 }
 
-void SuperResolutionBase::UpdateZ(Mat& mat, int x, int y, const vector<bool>& index, const vector<Mat>& mats)
+float SuperResolutionBase::median(vector<unsigned char>& vector) const
 {
+	sort(vector.begin(), vector.end());
 
+	auto len = vector.size();
+	if (len % 2 != 0)
+		return vector[len / 2];
+	return float(vector[len / 2] + vector[(len - 1) / 2]) / 2.0;
+}
+
+void SuperResolutionBase::MedianThirdDim(const Mat& merged_frame, Mat& median_frame)
+{
+	for (auto i = 0; i < median_frame.rows; ++i)
+	{
+		auto rowData = median_frame.ptr<float>(i);
+		auto srcRowData = merged_frame.ptr<uchar>(i);
+		for (auto j = 0; j < median_frame.cols; ++j)
+		{
+			vector<uchar> element;
+			for (auto k = 0; k < merged_frame.channels(); ++k)
+				element.push_back(*(srcRowData + j + k));
+
+			rowData[j] = median(element);
+		}
+	}
+}
+
+void SuperResolutionBase::UpdateZAndA(Mat& Z, Mat& A, int x, int y, const vector<bool>& index, const vector<Mat>& frames, const int len)
+{
+	vector<Mat> selectedFrames;
+	for (auto i = 0; i < index.size(); ++i)
+	{
+		if (index[i])
+			selectedFrames.push_back(frames[i]);
+	}
+	Mat mergedFrame;
+	merge(selectedFrames, mergedFrame);
+
+	Mat medianFrame(frames[0].rows, frames[0].cols, CV_32FC1);
+	MedianThirdDim(mergedFrame, medianFrame);
+
+	for (auto r = x - 1; r < Z.cols; r += srFactor)
+	{
+		for (auto c = y - 1; c < Z.rows; c += srFactor)
+		{
+			Z.at<float>(r, c) = mergedFrame.at<float>(r % srFactor, c % srFactor);
+			A.at<float>(r, c) = len;
+		}
+	}
 }
 
 void SuperResolutionBase::MedianAndShift(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances, const Size& new_size, Mat& Z, Mat& A)
 {
-	Z = Mat::zeros(new_size, CV_8UC1);
-	A = Mat::ones(new_size, CV_8UC1);
+	Z = Mat::zeros(new_size, CV_32FC1);
+	A = Mat::ones(new_size, CV_32FC1);
 
 	Mat S = Mat::zeros(Size(srFactor, srFactor), CV_8UC1);
 
@@ -92,18 +138,56 @@ void SuperResolutionBase::MedianAndShift(const vector<Mat>& interp_previous_fram
 			{
 				S.at<uchar>(x - srFactor, y - srFactor) = 1;
 
-				UpdateZ(Z, x, y, index,interp_previous_frames);
-//				UpdateA(A, x, y, len);
+				UpdateZAndA(Z, A, x, y, index, interp_previous_frames, len);
 			}
 		}
 	}
+
+	Mat noneZeroMap = S == 0;
+	vector<int> X, Y;
+	for (auto r = 0; r < noneZeroMap.rows; ++r)
+	{
+		auto perRow = noneZeroMap.ptr<uchar>(r);
+		for (auto c = 0; c < noneZeroMap.cols; ++c)
+		{
+			if (static_cast<int>(perRow[c]) != 0)
+			{
+				X.push_back(c);
+				Y.push_back(r);
+			}
+		}
+	}
+
+	if (X.size() != 0)
+	{
+		Mat Zmedian;
+		medianBlur(Z, Zmedian, srFactor);
+		auto row = Z.rows;
+		auto col = Z.cols;
+
+		for (auto i = 0; i < X.size(); ++i)
+		{
+			for (auto r = Y[i] + srFactor - 2; r < row; r += srFactor)
+			{
+				auto perLineOfZ = Z.ptr<float>(r);
+				auto perLineOfZmedian = Zmedian.ptr<float>(r);
+
+				for (auto c = X[i] + srFactor - 2; c < col; c += srFactor)
+					perLineOfZ[c] = perLineOfZmedian[c];
+			}
+		}
+	}
+
+	Mat copiedA;
+	cv::sqrt(A, copiedA);
+	copiedA.copyTo(A);
 }
 
 void SuperResolutionBase::FastRobustSR(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances)
 {
 	Mat Z, A;
-	Size newSize((frameSize.width + 1) * srFactor - 1,(frameSize.height + 1) *srFactor -1);
-	MedianAndShift(interp_previous_frames,current_distances,newSize,Z,A);
+	Size newSize((frameSize.width + 1) * srFactor - 1, (frameSize.height + 1) * srFactor - 1);
+	MedianAndShift(interp_previous_frames, current_distances, newSize, Z, A);
 }
 
 vector<Mat> SuperResolutionBase::NearestInterp2(const vector<Mat>& previousFrames, const vector<vector<double>>& distances) const
@@ -125,7 +209,7 @@ vector<Mat> SuperResolutionBase::NearestInterp2(const vector<Mat>& previousFrame
 
 		auto currentFrame = previousFrames[i];
 		remap(currentFrame, result[i], formatX, formatY, INTER_NEAREST);
- 	}
+	}
 	return result;
 }
 
@@ -133,7 +217,7 @@ void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray out
 {
 	namedWindow("Current Frame");
 	namedWindow("Previous Frames");
-	
+
 	Mat currentFrame;
 
 	while (frameBuffer->CurrentFrame().data)
@@ -155,7 +239,7 @@ void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray out
 			waitKey(100);
 		}
 		 */
-		
+
 		frameSource->nextFrame(currentFrame);
 		frameBuffer->PushGray(currentFrame);
 	}
@@ -166,35 +250,35 @@ void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray out
 
 vector<vector<double>> SuperResolutionBase::RegisterImages(vector<Mat>& frames)
 {
-	vector<vector<double> > result;
+	vector<vector<double>> result;
 	Rect rectROI(0, 0, frames[0].cols, frames[0].rows);
 
-	for(auto i =1;i<frames.size();++i)
+	for (auto i = 1; i < frames.size(); ++i)
 	{
 		auto currentDistance = LKOFlow::PyramidalLKOpticalFlow(frames[0], frames[i], rectROI);
 		result.push_back(currentDistance);
 	}
 
-	return  result;
+	return result;
 }
 
 vector<vector<double>> SuperResolutionBase::GetRestDistance(const vector<vector<double>>& distances, int srFactor) const
 {
-	vector<vector<double> > result;
-	for(auto i =0;i<distances.size();++i)
+	vector<vector<double>> result;
+	for (auto i = 0; i < distances.size(); ++i)
 	{
 		vector<double> distance;
 		for (auto j = 0; j < distances[0].size(); ++j)
 			distance.push_back(floor(distances[i][j] / srFactor));
 		result.push_back(distance);
 	}
-	return  result;
+	return result;
 }
 
 void SuperResolutionBase::RoundAndScale(vector<vector<double>>& distances, int srFactor) const
 {
-	for(auto i =0;i<distances.size();++i)
-		for(auto j = 0;j<distances[0].size();++j)
+	for (auto i = 0; i < distances.size(); ++i)
+		for (auto j = 0; j < distances[0].size(); ++j)
 			distances[i][j] = round(distances[i][j] * double(srFactor));
 }
 
@@ -202,14 +286,14 @@ void SuperResolutionBase::ModAndAddFactor(vector<vector<double>>& distances, int
 {
 	for (auto i = 0; i < distances.size(); ++i)
 		for (auto j = 0; j < distances[0].size(); ++j)
-			distances[i][j] = fmod(distances[i][j] , static_cast<double>(srFactor)) + srFactor;
+			distances[i][j] = fmod(distances[i][j], static_cast<double>(srFactor)) + srFactor;
 }
 
-vector<vector<double>> SuperResolutionBase::CollectParms(vector<vector<double> >& distances) const
+vector<vector<double>> SuperResolutionBase::CollectParms(vector<vector<double>>& distances) const
 {
 	RoundAndScale(distances, srFactor);
 	auto restDistance = GetRestDistance(distances, srFactor);
-	ModAndAddFactor(distances,srFactor);
+	ModAndAddFactor(distances, srFactor);
 
 	return restDistance;
 }
