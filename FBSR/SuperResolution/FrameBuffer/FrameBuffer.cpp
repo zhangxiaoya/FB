@@ -29,7 +29,10 @@ void FrameBuffer::PushGray(Mat& frame)
 	Mat grayFrame;
 	cvtColor(frame, grayFrame, CV_BGR2GRAY);
 
-	grayFrame.copyTo(sourceFrames[head]);
+	Mat floatGrayFrame;
+	grayFrame.convertTo(floatGrayFrame, CV_32FC1);
+
+	floatGrayFrame.copyTo(sourceFrames[head]);
 	head += 1;
 	if (head >= bufferSize)
 		head %= bufferSize;
