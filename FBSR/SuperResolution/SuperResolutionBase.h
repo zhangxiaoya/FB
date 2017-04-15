@@ -5,8 +5,6 @@
 #include "FrameBuffer/FrameBuffer.h"
 #include "../FrameSource/FrameSource.h"
 #include "../PropsStruct.h"
-#include "../LKOFlow/LKOFlow.h"
-#include <algorithm>
 
 using namespace std;
 using namespace cv;
