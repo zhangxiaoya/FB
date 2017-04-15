@@ -211,7 +211,7 @@ Mat SuperResolutionBase::FastGradientBackProject(const Mat& hr, const Mat& Z, co
 	Mat dis = newZ - Z;
 	Mat resMul = A.mul(dis);
 
-	Mat Gsign(resMul.rows, resMul.cols, CV_8UC1);
+	Mat Gsign(resMul.rows, resMul.cols, CV_32FC1);
 	MySign(resMul, Gsign);
 
 	Mat newhpsf;
