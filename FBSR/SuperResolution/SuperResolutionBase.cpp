@@ -4,7 +4,7 @@
 #include "../LKOFlow/LKOFlow.h"
 #include <algorithm>
 
-SuperResolutionBase::SuperResolutionBase(int bufferSize) : isFirstRun(false), bufferSize(bufferSize), srFactor(4), psfSize(3), psfSigma(1.0)
+SuperResolutionBase::SuperResolutionBase(int bufferSize) : isFirstRun(false), bufferSize(bufferSize), srFactor(4), psfSize(3), psfSigma(3.0)
 {
 	this->frameBuffer = new FrameBuffer(bufferSize);
 }
@@ -105,11 +105,11 @@ void SuperResolutionBase::UpdateZAndA(Mat& Z, Mat& A, int x, int y, const vector
 	Mat medianFrame(frames[0].rows, frames[0].cols, CV_32FC1);
 	MedianThirdDim(mergedFrame, medianFrame);
 
-	for (auto r = x - 1; r < Z.cols; r += srFactor)
+	for (auto r = x - 1; r < Z.rows; r += srFactor)
 	{
-		for (auto c = y - 1; c < Z.rows; c += srFactor)
+		for (auto c = y - 1; c < Z.cols; c += srFactor)
 		{
-			Z.at<float>(r, c) = mergedFrame.at<float>(r % srFactor, c % srFactor);
+			Z.at<float>(r, c) = medianFrame.at<float>(r % srFactor, c % srFactor);
 			A.at<float>(r, c) = len;
 		}
 	}
@@ -122,11 +122,11 @@ void SuperResolutionBase::MedianAndShift(const vector<Mat>& interp_previous_fram
 
 	Mat S = Mat::zeros(Size(srFactor, srFactor), CV_8UC1);
 
-	vector<bool> index;
 	for (auto x = srFactor; x < 2 * srFactor; ++x)
 	{
 		for (auto y = srFactor; y < 2 * srFactor; ++y)
 		{
+			vector<bool> index;
 			for (auto k = 0; k < current_distances.size(); ++k)
 			{
 				if (current_distances[k][0] == x && current_distances[k][1] == y)
@@ -163,7 +163,7 @@ void SuperResolutionBase::MedianAndShift(const vector<Mat>& interp_previous_fram
 	if (X.size() != 0)
 	{
 		Mat Zmedian;
-		medianBlur(Z, Zmedian, srFactor);
+		medianBlur(Z, Zmedian, srFactor+1);
 		auto row = Z.rows;
 		auto col = Z.cols;
 
@@ -285,8 +285,8 @@ void SuperResolutionBase::FastRobustSR(const vector<Mat>& interp_previous_frames
 
 Mat SuperResolutionBase::GetGaussianKernal() const
 {
-	auto halfSize = (srFactor - 1) / 2;
-	Mat K(srFactor, srFactor, CV_32FC1);
+	auto halfSize = (static_cast<int>(psfSigma) - 1) / 2;
+	Mat K(static_cast<int>(psfSigma), static_cast<int>(psfSigma), CV_32FC1);
 
 	auto s2 = 2.0 * psfSigma * psfSigma;
 	for (auto i = (-halfSize); i <= halfSize; i++)
@@ -331,15 +331,13 @@ vector<Mat> SuperResolutionBase::NearestInterp2(const vector<Mat>& previousFrame
 
 void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray outputFrame)
 {
-	namedWindow("Current Frame");
-	namedWindow("Previous Frames");
+//	namedWindow("Current Frame");
 
 	Mat currentFrame;
 
 	while (frameBuffer->CurrentFrame().data)
 	{
-		imshow("Current Frame", frameBuffer->CurrentFrame());
-		waitKey(100);
+//		imshow("Current Frame", frameBuffer->CurrentFrame());
 
 		auto previous_frames = frameBuffer->GetAll();
 		auto currentDistances = RegisterImages(previous_frames);
@@ -370,6 +368,7 @@ vector<vector<double>> SuperResolutionBase::RegisterImages(vector<Mat>& frames)
 {
 	vector<vector<double>> result;
 	Rect rectROI(0, 0, frames[0].cols, frames[0].rows);
+	result.push_back(vector<double>(2, 0.0));
 
 	for (auto i = 1; i < frames.size(); ++i)
 	{
