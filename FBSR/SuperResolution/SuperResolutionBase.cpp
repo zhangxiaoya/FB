@@ -45,7 +45,7 @@ void SuperResolutionBase::NextFrame(OutputArray outputFrame)
 void SuperResolutionBase::Init(Ptr<FrameSource>& frameSource)
 {
 	Mat currentFrame;
-
+	SetProps(0.7, 1, 0.04, 2, 10);
 	for (auto i = 0; i < bufferSize; ++i)
 	{
 		frameSource->nextFrame(currentFrame);
@@ -234,18 +234,18 @@ Mat SuperResolutionBase::GradientRegulization(const Mat& hr, double p, double al
 	{
 		for (int j = -1 * p; j <= p; ++j)
 		{
-			Rect rectOne(Point(0 + p - i, 0 + p - j), Point(paddedHr.cols - 1 - p - i, paddedHr.rows - 1 - p - j));
+			Rect rectOne(Point(0 + p - i, 0 + p - j), Point(paddedHr.cols - p - i, paddedHr.rows - p - j));
 			auto selectMat = paddedHr(rectOne);
 
 			Mat dis = hr - selectMat;
 
-			Mat Xsign(dis.rows, dis.cols, CV_8UC1);
+			Mat Xsign(dis.rows, dis.cols, CV_32FC1);
 			MySign(dis, Xsign);
 
 			Mat paddedXsign;
 			copyMakeBorder(Xsign, paddedXsign, p, p, p, p, BORDER_CONSTANT, 0);
 
-			Rect receTwo(Point(0 + p + i, 0 + p + j), Point(paddedXsign.cols - 1 - p + i, paddedXsign.rows - 1 - p + j));
+			Rect receTwo(Point(0 + p + i, 0 + p + j), Point(paddedXsign.cols - p + i, paddedXsign.rows - p + j));
 			auto selectedXsign = paddedXsign(receTwo);
 
 			Mat diss = Xsign - selectedXsign;
@@ -260,7 +260,7 @@ Mat SuperResolutionBase::GradientRegulization(const Mat& hr, double p, double al
 	return G;
 }
 
-void SuperResolutionBase::FastRobustSR(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances, Mat hpsf)
+Mat SuperResolutionBase::FastRobustSR(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances, Mat hpsf)
 {
 	Mat Z, A;
 	Size newSize((frameSize.width + 1) * srFactor - 1, (frameSize.height + 1) * srFactor - 1);
@@ -281,6 +281,7 @@ void SuperResolutionBase::FastRobustSR(const vector<Mat>& interp_previous_frames
 
 		iter = iter + 1;
 	}
+	return HR;
 }
 
 Mat SuperResolutionBase::GetGaussianKernal() const
@@ -346,7 +347,11 @@ void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray out
 
 		auto Hpsf = GetGaussianKernal();
 
-		FastRobustSR(interpPreviousFrames, currentDistances, Hpsf);
+		auto Hr = FastRobustSR(interpPreviousFrames, currentDistances, Hpsf);
+
+		Mat sss;
+		Hr.convertTo(sss, CV_8UC1);
+		imshow("test", sss);
 
 		/*
 		 for (auto i = 0; i < bufferSize; ++i)
