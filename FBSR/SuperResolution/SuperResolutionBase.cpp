@@ -45,6 +45,7 @@ void SuperResolutionBase::NextFrame(OutputArray outputFrame)
 void SuperResolutionBase::Init(Ptr<FrameSource>& frameSource)
 {
 	Mat currentFrame;
+	SetProps(0.7, 1, 0.04, 2, 20);
 
 	for (auto i = 0; i < bufferSize; ++i)
 	{
@@ -105,11 +106,11 @@ void SuperResolutionBase::UpdateZAndA(Mat& Z, Mat& A, int x, int y, const vector
 	Mat medianFrame(frames[0].rows, frames[0].cols, CV_32FC1);
 	MedianThirdDim(mergedFrame, medianFrame);
 
-	for (auto r = x - 1; r < Z.cols; r += srFactor)
+	for (auto r = x - 1; r < Z.rows; r += srFactor)
 	{
-		for (auto c = y - 1; c < Z.rows; c += srFactor)
+		for (auto c = y - 1; c < Z.cols; c += srFactor)
 		{
-			Z.at<float>(r, c) = mergedFrame.at<float>(r % srFactor, c % srFactor);
+			Z.at<float>(r, c) = medianFrame.at<float>(r % srFactor, c % srFactor);
 			A.at<float>(r, c) = len;
 		}
 	}
@@ -122,11 +123,11 @@ void SuperResolutionBase::MedianAndShift(const vector<Mat>& interp_previous_fram
 
 	Mat S = Mat::zeros(Size(srFactor, srFactor), CV_8UC1);
 
-	vector<bool> index;
 	for (auto x = srFactor; x < 2 * srFactor; ++x)
 	{
 		for (auto y = srFactor; y < 2 * srFactor; ++y)
 		{
+			vector<bool> index;
 			for (auto k = 0; k < current_distances.size(); ++k)
 			{
 				if (current_distances[k][0] == x && current_distances[k][1] == y)
@@ -163,7 +164,7 @@ void SuperResolutionBase::MedianAndShift(const vector<Mat>& interp_previous_fram
 	if (X.size() != 0)
 	{
 		Mat Zmedian;
-		medianBlur(Z, Zmedian, srFactor);
+		medianBlur(Z, Zmedian, srFactor+1);
 		auto row = Z.rows;
 		auto col = Z.cols;
 
@@ -211,7 +212,7 @@ Mat SuperResolutionBase::FastGradientBackProject(const Mat& hr, const Mat& Z, co
 	Mat dis = newZ - Z;
 	Mat resMul = A.mul(dis);
 
-	Mat Gsign(resMul.rows, resMul.cols, CV_8UC1);
+	Mat Gsign(resMul.rows, resMul.cols, CV_32FC1);
 	MySign(resMul, Gsign);
 
 	Mat newhpsf;
@@ -234,18 +235,18 @@ Mat SuperResolutionBase::GradientRegulization(const Mat& hr, double p, double al
 	{
 		for (int j = -1 * p; j <= p; ++j)
 		{
-			Rect rectOne(Point(0 + p - i, 0 + p - j), Point(paddedHr.cols - 1 - p - i, paddedHr.rows - 1 - p - j));
+			Rect rectOne(Point(0 + p - i, 0 + p - j), Point(paddedHr.cols - p - i, paddedHr.rows - p - j));
 			auto selectMat = paddedHr(rectOne);
 
 			Mat dis = hr - selectMat;
 
-			Mat Xsign(dis.rows, dis.cols, CV_8UC1);
+			Mat Xsign(dis.rows, dis.cols, CV_32FC1);
 			MySign(dis, Xsign);
 
 			Mat paddedXsign;
 			copyMakeBorder(Xsign, paddedXsign, p, p, p, p, BORDER_CONSTANT, 0);
 
-			Rect receTwo(Point(0 + p + i, 0 + p + j), Point(paddedXsign.cols - 1 - p + i, paddedXsign.rows - 1 - p + j));
+			Rect receTwo(Point(0 + p + i, 0 + p + j), Point(paddedXsign.cols - p + i, paddedXsign.rows - p + j));
 			auto selectedXsign = paddedXsign(receTwo);
 
 			Mat diss = Xsign - selectedXsign;
@@ -260,7 +261,7 @@ Mat SuperResolutionBase::GradientRegulization(const Mat& hr, double p, double al
 	return G;
 }
 
-void SuperResolutionBase::FastRobustSR(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances, Mat hpsf)
+Mat SuperResolutionBase::FastRobustSR(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances, Mat hpsf)
 {
 	Mat Z, A;
 	Size newSize((frameSize.width + 1) * srFactor - 1, (frameSize.height + 1) * srFactor - 1);
@@ -281,12 +282,13 @@ void SuperResolutionBase::FastRobustSR(const vector<Mat>& interp_previous_frames
 
 		iter = iter + 1;
 	}
+	return HR;
 }
 
 Mat SuperResolutionBase::GetGaussianKernal() const
 {
-	auto halfSize = (srFactor - 1) / 2;
-	Mat K(srFactor, srFactor, CV_32FC1);
+	auto halfSize = (psfSize - 1) / 2;
+	Mat K(psfSize, psfSize, CV_32FC1);
 
 	auto s2 = 2.0 * psfSigma * psfSigma;
 	for (auto i = (-halfSize); i <= halfSize; i++)
@@ -370,7 +372,7 @@ vector<vector<double>> SuperResolutionBase::RegisterImages(vector<Mat>& frames)
 {
 	vector<vector<double>> result;
 	Rect rectROI(0, 0, frames[0].cols, frames[0].rows);
-
+	result.push_back(vector<double>(2, 0.0));
 	for (auto i = 1; i < frames.size(); ++i)
 	{
 		auto currentDistance = LKOFlow::PyramidalLKOpticalFlow(frames[0], frames[i], rectROI);
