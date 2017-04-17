@@ -3,6 +3,7 @@
 #include <contrib/contrib.hpp>
 #include "../LKOFlow/LKOFlow.h"
 #include <algorithm>
+#include <iostream>
 
 SuperResolutionBase::SuperResolutionBase(int bufferSize) : isFirstRun(false), bufferSize(bufferSize), srFactor(4), psfSize(3), psfSigma(3.0)
 {
@@ -349,7 +350,12 @@ void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray out
 
 		auto Hpsf = GetGaussianKernal();
 
-		FastRobustSR(interpPreviousFrames, currentDistances, Hpsf);
+		auto Hr = FastRobustSR(interpPreviousFrames, currentDistances, Hpsf);
+		cout << Hr(Rect(0, 0, 16, 16)) << endl;
+		cout << endl;
+
+		Mat UcharHr;
+		Hr.convertTo(UcharHr, CV_8UC1);
 
 		/*
 		 for (auto i = 0; i < bufferSize; ++i)
@@ -358,6 +364,7 @@ void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray out
 			waitKey(100);
 		}
 		 */
+		cout << UcharHr(Rect(0, 0, 16, 16)) << endl;
 
 		frameSource->nextFrame(currentFrame);
 		frameBuffer->PushGray(currentFrame);
