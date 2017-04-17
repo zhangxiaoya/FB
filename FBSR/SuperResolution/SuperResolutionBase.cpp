@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <iostream>
 
-SuperResolutionBase::SuperResolutionBase(int bufferSize) : isFirstRun(false), bufferSize(bufferSize), srFactor(4), psfSize(3), psfSigma(1.0)
+SuperResolutionBase::SuperResolutionBase(int bufferSize) : isFirstRun(false), bufferSize(bufferSize), srFactor(4), psfSize(3), psfSigma(3.0)
 {
 	this->frameBuffer = new FrameBuffer(bufferSize);
 }
@@ -290,6 +290,8 @@ Mat SuperResolutionBase::GetGaussianKernal() const
 {
 	auto halfSize = (psfSize - 1) / 2;
 	Mat K(psfSize, psfSize, CV_32FC1);
+//	auto halfSize = (static_cast<int>(psfSigma) - 1) / 2;
+//	Mat K(static_cast<int>(psfSigma), static_cast<int>(psfSigma), CV_32FC1);
 
 	auto s2 = 2.0 * psfSigma * psfSigma;
 	for (auto i = (-halfSize); i <= halfSize; i++)
@@ -334,15 +336,13 @@ vector<Mat> SuperResolutionBase::NearestInterp2(const vector<Mat>& previousFrame
 
 void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray outputFrame)
 {
-	namedWindow("Current Frame");
-	namedWindow("Previous Frames");
+//	namedWindow("Current Frame");
 
 	Mat currentFrame;
 
 	while (frameBuffer->CurrentFrame().data)
 	{
-		imshow("Current Frame", frameBuffer->CurrentFrame());
-		waitKey(100);
+//		imshow("Current Frame", frameBuffer->CurrentFrame());
 
 		auto previous_frames = frameBuffer->GetAll();
 		auto currentDistances = RegisterImages(previous_frames);
@@ -380,6 +380,7 @@ vector<vector<double>> SuperResolutionBase::RegisterImages(vector<Mat>& frames)
 	vector<vector<double>> result;
 	Rect rectROI(0, 0, frames[0].cols, frames[0].rows);
 	result.push_back(vector<double>(2, 0.0));
+
 	for (auto i = 1; i < frames.size(); ++i)
 	{
 		auto currentDistance = LKOFlow::PyramidalLKOpticalFlow(frames[0], frames[i], rectROI);
