@@ -2,6 +2,7 @@
 #include <core/core.hpp>
 #include <vector>
 #include <highgui/highgui.hpp>
+#include <contrib/contrib.hpp>
 
 using namespace std;
 using namespace cv;
@@ -24,6 +25,11 @@ inline void ReadEmilyImageList::ReadImageList(vector<cv::Mat>& imageList, int im
 		string fullName(name);
 		auto curImg = imread(fullName);
 
-		curImg.copyTo(imageList[i-1]);
+		Mat grayImg;
+		cvtColor(curImg, grayImg,CV_BGR2GRAY);
+		Mat floatGrayImg;
+		grayImg.convertTo(floatGrayImg, CV_32FC1);
+
+		floatGrayImg.copyTo(imageList[i-1]);
 	}
 }

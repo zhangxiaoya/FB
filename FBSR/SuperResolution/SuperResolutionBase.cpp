@@ -4,8 +4,9 @@
 #include "../LKOFlow/LKOFlow.h"
 #include <algorithm>
 #include <iostream>
+#include "ReadEmilyImageList.hpp"
 
-SuperResolutionBase::SuperResolutionBase(int bufferSize) : isFirstRun(false), bufferSize(bufferSize), srFactor(4), psfSize(3), psfSigma(3.0)
+SuperResolutionBase::SuperResolutionBase(int bufferSize) : isFirstRun(false), bufferSize(bufferSize), srFactor(4), psfSize(3), psfSigma(1.0)
 {
 	this->frameBuffer = new FrameBuffer(bufferSize);
 }
@@ -35,11 +36,13 @@ bool SuperResolutionBase::Reset()
 
 void SuperResolutionBase::NextFrame(OutputArray outputFrame)
 {
+	isFirstRun = false;
 	if (isFirstRun)
 	{
 		Init(this->frameSource);
 		isFirstRun = false;
 	}
+	SetProps(0.7, 1, 0.04, 2, 20);
 	Process(this->frameSource, outputFrame);
 }
 
@@ -119,6 +122,11 @@ void SuperResolutionBase::UpdateZAndA(Mat& Z, Mat& A, int x, int y, const vector
 
 void SuperResolutionBase::MedianAndShift(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances, const Size& new_size, Mat& Z, Mat& A)
 {
+
+	for(int i=0;i<current_distances.size();++i)
+	{
+		cout << current_distances[i][0] << " " << current_distances[i][1] << endl;
+	}
 	Z = Mat::zeros(new_size, CV_32FC1);
 	A = Mat::ones(new_size, CV_32FC1);
 
@@ -171,12 +179,12 @@ void SuperResolutionBase::MedianAndShift(const vector<Mat>& interp_previous_fram
 
 		for (auto i = 0; i < X.size(); ++i)
 		{
-			for (auto r = Y[i] + srFactor - 2; r < row; r += srFactor)
+			for (auto r = Y[i] + srFactor -2; r < row; r += srFactor)
 			{
 				auto perLineOfZ = Z.ptr<float>(r);
 				auto perLineOfZmedian = Zmedian.ptr<float>(r);
 
-				for (auto c = X[i] + srFactor - 2; c < col; c += srFactor)
+				for (auto c = X[i] + srFactor-2; c < col; c += srFactor)
 					perLineOfZ[c] = perLineOfZmedian[c];
 			}
 		}
@@ -335,27 +343,40 @@ vector<Mat> SuperResolutionBase::NearestInterp2(const vector<Mat>& previousFrame
 
 void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray outputFrame)
 {
-//	namedWindow("Current Frame");
+	bufferSize = 53;
+	auto emilyImageCount = 53;
+	vector<Mat> EmilyImageList;
+	EmilyImageList.resize(emilyImageCount);
+	ReadEmilyImageList::ReadImageList(EmilyImageList, emilyImageCount);
 
-	Mat currentFrame;
+	frameSize = Size(EmilyImageList[1].cols,EmilyImageList[1].rows);
+	auto currentDistances = RegisterImages(EmilyImageList);
+	auto restDistances = CollectParms(currentDistances);
+	auto interpPreviousFrames = NearestInterp2(EmilyImageList, restDistances);
 
-	while (frameBuffer->CurrentFrame().data)
-	{
-//		imshow("Current Frame", frameBuffer->CurrentFrame());
+	auto Hpsf = GetGaussianKernal();
 
-		auto previous_frames = frameBuffer->GetAll();
-		auto currentDistances = RegisterImages(previous_frames);
-		auto restDistances = CollectParms(currentDistances);
-		auto interpPreviousFrames = NearestInterp2(previous_frames, restDistances);
+	auto Hr = FastRobustSR(interpPreviousFrames, currentDistances, Hpsf);
 
-		auto Hpsf = GetGaussianKernal();
+	Mat UcharHr;
+	Hr.convertTo(UcharHr, CV_8UC1);
 
-		auto Hr = FastRobustSR(interpPreviousFrames, currentDistances, Hpsf);
-		cout << Hr(Rect(0, 0, 16, 16)) << endl;
-		cout << endl;
+//	Mat currentFrame;
+//	while (frameBuffer->CurrentFrame().data)
+//	{
+//		auto previous_frames = frameBuffer->GetAll();
+//		auto currentDistances = RegisterImages(previous_frames);
+//		auto restDistances = CollectParms(currentDistances);
+//		auto interpPreviousFrames = NearestInterp2(previous_frames, restDistances);
 
-		Mat UcharHr;
-		Hr.convertTo(UcharHr, CV_8UC1);
+//		auto Hpsf = GetGaussianKernal();
+
+//		auto Hr = FastRobustSR(interpPreviousFrames, currentDistances, Hpsf);
+//		cout << Hr(Rect(0, 0, 16, 16)) << endl;
+//		cout << endl;
+
+//		Mat UcharHr;
+//		Hr.convertTo(UcharHr, CV_8UC1);
 
 		/*
 		 for (auto i = 0; i < bufferSize; ++i)
@@ -364,14 +385,14 @@ void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray out
 			waitKey(100);
 		}
 		 */
-		cout << UcharHr(Rect(0, 0, 16, 16)) << endl;
+//		cout << UcharHr(Rect(0, 0, 16, 16)) << endl;
 
-		frameSource->nextFrame(currentFrame);
-		frameBuffer->PushGray(currentFrame);
-	}
+//		frameSource->nextFrame(currentFrame);
+//		frameBuffer->PushGray(currentFrame);
+//	}
 
-	currentFrame.release();
-	destroyAllWindows();
+//	currentFrame.release();
+//	destroyAllWindows();
 }
 
 vector<vector<double>> SuperResolutionBase::RegisterImages(vector<Mat>& frames)
