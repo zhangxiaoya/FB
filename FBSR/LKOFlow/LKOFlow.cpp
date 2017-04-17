@@ -5,9 +5,7 @@
 
 vector<double> LKOFlow::PyramidalLKOpticalFlow(Mat& img1, Mat& img2, Rect& ROI)
 {
-	Mat image1, image2;
-	img1.convertTo(image1, CV_32F);
-	img2.convertTo(image2, CV_32F);
+	Mat image1 = img1, image2 = img2;
 
 	auto ROISize = ROI.size();
 
@@ -21,7 +19,7 @@ vector<double> LKOFlow::PyramidalLKOpticalFlow(Mat& img1, Mat& img2, Rect& ROI)
 	GaussianPyramid(image1, image1Pyramid, levels);
 	GaussianPyramid(image2, image2Pyramid, levels);
 
-	vector<double> distance = { 0.0,0.0 };
+	vector<double> distance = {0.0,0.0};
 
 	for (auto currentLevel = levels - 1; currentLevel >= 0; --currentLevel)
 	{
@@ -99,15 +97,11 @@ void LKOFlow::IterativeLKOpticalFlow(Mat& img1, Mat& img2, Point topLeft, Point 
 
 		Mat b = Ht * newIt;
 
-		Mat invertG;
-		invert(G, invertG);
-
-		Mat dc = invertG * b;
-
+		Mat dc = G.inv() * b;
 		normDistrance = MyNorm(dc);
 
-		distance[0] += dc.at<float>(0, 0);
-		distance[1] += dc.at<float>(1, 0);
+		distance[1] += dc.at<float>(0, 0);
+		distance[0] += dc.at<float>(1, 0);
 
 		currentIterativeIndex++;
 	}
