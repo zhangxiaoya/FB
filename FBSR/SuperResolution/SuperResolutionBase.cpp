@@ -45,6 +45,7 @@ void SuperResolutionBase::NextFrame(OutputArray outputFrame)
 void SuperResolutionBase::Init(Ptr<FrameSource>& frameSource)
 {
 	Mat currentFrame;
+	SetProps(0.7, 1, 0.04, 2, 20);
 
 	for (auto i = 0; i < bufferSize; ++i)
 	{
@@ -211,7 +212,6 @@ Mat SuperResolutionBase::FastGradientBackProject(const Mat& hr, const Mat& Z, co
 	Mat dis = newZ - Z;
 	Mat resMul = A.mul(dis);
 
-
 	Mat Gsign(resMul.rows, resMul.cols, CV_32FC1);
 	MySign(resMul, Gsign);
 
@@ -235,18 +235,18 @@ Mat SuperResolutionBase::GradientRegulization(const Mat& hr, double p, double al
 	{
 		for (int j = -1 * p; j <= p; ++j)
 		{
-			Rect rectOne(Point(0 + p - i, 0 + p - j), Point(paddedHr.cols - 1 - p - i, paddedHr.rows - 1 - p - j));
+			Rect rectOne(Point(0 + p - i, 0 + p - j), Point(paddedHr.cols - p - i, paddedHr.rows - p - j));
 			auto selectMat = paddedHr(rectOne);
 
 			Mat dis = hr - selectMat;
 
-			Mat Xsign(dis.rows, dis.cols, CV_8UC1);
+			Mat Xsign(dis.rows, dis.cols, CV_32FC1);
 			MySign(dis, Xsign);
 
 			Mat paddedXsign;
 			copyMakeBorder(Xsign, paddedXsign, p, p, p, p, BORDER_CONSTANT, 0);
 
-			Rect receTwo(Point(0 + p + i, 0 + p + j), Point(paddedXsign.cols - 1 - p + i, paddedXsign.rows - 1 - p + j));
+			Rect receTwo(Point(0 + p + i, 0 + p + j), Point(paddedXsign.cols - p + i, paddedXsign.rows - p + j));
 			auto selectedXsign = paddedXsign(receTwo);
 
 			Mat diss = Xsign - selectedXsign;
@@ -261,7 +261,7 @@ Mat SuperResolutionBase::GradientRegulization(const Mat& hr, double p, double al
 	return G;
 }
 
-void SuperResolutionBase::FastRobustSR(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances, Mat hpsf)
+Mat SuperResolutionBase::FastRobustSR(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances, Mat hpsf)
 {
 	Mat Z, A;
 	Size newSize((frameSize.width + 1) * srFactor - 1, (frameSize.height + 1) * srFactor - 1);
@@ -282,12 +282,14 @@ void SuperResolutionBase::FastRobustSR(const vector<Mat>& interp_previous_frames
 
 		iter = iter + 1;
 	}
+	return HR;
 }
 
 Mat SuperResolutionBase::GetGaussianKernal() const
 {
-	auto halfSize = (static_cast<int>(psfSigma) - 1) / 2;
-	Mat K(static_cast<int>(psfSigma), static_cast<int>(psfSigma), CV_32FC1);
+
+	auto halfSize = (psfSize - 1) / 2;
+	Mat K(psfSize, psfSize, CV_32FC1);
 
 	auto s2 = 2.0 * psfSigma * psfSigma;
 	for (auto i = (-halfSize); i <= halfSize; i++)
