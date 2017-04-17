@@ -81,6 +81,7 @@ float SuperResolutionBase::median(vector<unsigned char>& vector) const
 
 void SuperResolutionBase::MedianThirdDim(const Mat& merged_frame, Mat& median_frame)
 {
+	// something wrong here
 	for (auto i = 0; i < median_frame.rows; ++i)
 	{
 		auto rowData = median_frame.ptr<float>(i);
@@ -122,11 +123,6 @@ void SuperResolutionBase::UpdateZAndA(Mat& Z, Mat& A, int x, int y, const vector
 
 void SuperResolutionBase::MedianAndShift(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances, const Size& new_size, Mat& Z, Mat& A)
 {
-
-	for(int i=0;i<current_distances.size();++i)
-	{
-		cout << current_distances[i][0] << " " << current_distances[i][1] << endl;
-	}
 	Z = Mat::zeros(new_size, CV_32FC1);
 	A = Mat::ones(new_size, CV_32FC1);
 
@@ -400,6 +396,7 @@ vector<vector<double>> SuperResolutionBase::RegisterImages(vector<Mat>& frames)
 {
 	vector<vector<double>> result;
 	Rect rectROI(0, 0, frames[0].cols, frames[0].rows);
+
 	result.push_back(vector<double>(2, 0.0));
 
 	for (auto i = 1; i < frames.size(); ++i)
