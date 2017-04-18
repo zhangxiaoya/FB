@@ -111,11 +111,12 @@ void SuperResolutionBase::UpdateZAndA(Mat& Z, Mat& A, int x, int y, const vector
 	Mat medianFrame(frames[0].rows, frames[0].cols, CV_32FC1);
 	MedianThirdDim(mergedFrame, medianFrame);
 
-	for (auto r = x - 1; r < Z.rows; r += srFactor)
+	for (auto r = x - 1; r < Z.rows-3; r += srFactor)
 	{
-		for (auto c = y - 1; c < Z.cols; c += srFactor)
+		for (auto c = y - 1; c < Z.cols-3; c += srFactor)
 		{
-			Z.at<float>(r, c) = medianFrame.at<float>(r % srFactor, c % srFactor);
+			auto at = medianFrame.at<float>(r / srFactor, c / srFactor);
+			Z.at<float>(r, c) = at;
 			A.at<float>(r, c) = len;
 		}
 	}
