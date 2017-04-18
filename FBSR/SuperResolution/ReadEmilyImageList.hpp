@@ -20,7 +20,7 @@ inline void ReadEmilyImageList::ReadImageList(vector<cv::Mat>& imageList, int im
 	for (auto i = 1; i <= imageCount; ++i)
 	{
 		char name[100];
-		snprintf(name, sizeof(name), "Emily_samll/%d.png", i);
+		snprintf(name, sizeof(name), "Emily_small/%d.png", i);
 		string fullName(name);
 		auto curImg = imread(fullName, CV_LOAD_IMAGE_GRAYSCALE);
 

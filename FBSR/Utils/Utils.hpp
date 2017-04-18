@@ -9,6 +9,7 @@ public:
 	static Mat GetGaussianKernal(const int kernel_size, const double sigma);
 	static void CalculatedMedian(const Mat& source_mat, Mat& median_mat);
 	static void Sign(const Mat& src_mat, Mat& dest_mat);
+	static Mat ReshapedMatColumnFirst(const Mat& srcMat);
 
 private:
 	static float GetVectorMedian(vector<float>& value_list);
@@ -95,4 +96,21 @@ inline void Utils::Sign(const Mat& src_mat, Mat& dest_mat)
 				perLineDest[c] = static_cast<float>(0);
 		}
 	}
+}
+
+inline Mat Utils::ReshapedMatColumnFirst(const Mat& srcMat)
+{
+	Mat reshapedMat(Size(1, srcMat.cols * srcMat.rows), CV_32FC1);
+
+	for (auto r = 0; r < srcMat.rows;++r)
+	{
+		auto nr = r;
+		auto rowSrcMat = srcMat.ptr<float>(r);
+		for (auto c = 0; c < srcMat.cols;++c)
+		{
+			reshapedMat.ptr<float>(nr)[0] = rowSrcMat[c];
+			nr += srcMat.rows;
+		}
+	}
+	return reshapedMat;
 }
