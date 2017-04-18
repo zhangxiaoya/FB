@@ -296,6 +296,8 @@ Mat SuperResolutionBase::GetGaussianKernal() const
 
 	auto halfSize = (psfSize - 1) / 2;
 	Mat K(psfSize, psfSize, CV_32FC1);
+//	auto halfSize = (static_cast<int>(psfSigma) - 1) / 2;
+//	Mat K(static_cast<int>(psfSigma), static_cast<int>(psfSigma), CV_32FC1);
 
 	auto s2 = 2.0 * psfSigma * psfSigma;
 	for (auto i = (-halfSize); i <= halfSize; i++)
