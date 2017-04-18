@@ -1,6 +1,7 @@
 ﻿#include "LKOFlow.h"
 #include <opencv2/imgproc/imgproc.hpp>
 #include <cmath>
+#include "../Utils/Utils.hpp"
 
 
 vector<double> LKOFlow::PyramidalLKOpticalFlow(Mat& img1, Mat& img2, Rect& ROI)
@@ -84,15 +85,15 @@ void LKOFlow::IterativeLKOpticalFlow(Mat& img1, Mat& img2, Point topLeft, Point 
 		auto resample_img = ResampleImg(img2, ROIRect, distance);
 		Mat It = img1Rect - resample_img;
 
-		auto newIt = It.reshape(0, It.rows * It.cols);
+		auto newIt = Utils::ReshapedMatColumnFirst(It);
 
 		Mat b = Ht * newIt;
 
 		Mat dc = G.inv() * b;
 		normDistrance = norm(dc);
 
-		distance[1] += dc.at<float>(0, 0);
-		distance[0] += dc.at<float>(1, 0);
+		distance[0] += dc.at<float>(0, 0);
+		distance[1] += dc.at<float>(1, 0);
 
 		currentIterativeIndex++;
 	}
@@ -120,8 +121,11 @@ void LKOFlow::ComputeLKFlowParms(Mat& img, Mat& Ht, Mat& G)
 	rectSobelX.copyTo(deepCopyedX);
 	rectSobelY.copyTo(deepCopyedY);
 
-	auto reshapedX = deepCopyedX.reshape(0, deepCopyedX.rows * deepCopyedX.cols);
-	auto reshapedY = deepCopyedY.reshape(0, deepCopyedY.rows * deepCopyedY.cols);
+	auto reshapedX = Utils::ReshapedMatColumnFirst(deepCopyedX);
+	auto reshapedY = Utils::ReshapedMatColumnFirst(deepCopyedY);
+
+//	auto reshapedX = deepCopyedX.reshape(0, deepCopyedX.rows * deepCopyedX.cols);
+//	auto reshapedY = deepCopyedY.reshape(0, deepCopyedY.rows * deepCopyedY.cols);
 
 	auto H = MergeTwoCols(reshapedX, reshapedY);
 	Ht = H.t();

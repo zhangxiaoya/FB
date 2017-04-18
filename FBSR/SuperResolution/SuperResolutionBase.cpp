@@ -1,10 +1,10 @@
-#include "SuperResolutionBase.h"
 #include <highgui/highgui.hpp>
 #include <contrib/contrib.hpp>
-#include "../LKOFlow/LKOFlow.h"
-#include <algorithm>
 #include <iostream>
+
+#include "SuperResolutionBase.h"
 #include "ReadEmilyImageList.hpp"
+#include "../LKOFlow/LKOFlow.h"
 #include "../Utils/Utils.hpp"
 
 SuperResolutionBase::SuperResolutionBase(int bufferSize) : isFirstRun(false), bufferSize(bufferSize), srFactor(4), psfSize(3), psfSigma(1.0)
@@ -243,7 +243,6 @@ Mat SuperResolutionBase::FastRobustSR(const vector<Mat>& interp_previous_frames,
 
 		++iter;
 	}
-
 	return HR;
 }
 
