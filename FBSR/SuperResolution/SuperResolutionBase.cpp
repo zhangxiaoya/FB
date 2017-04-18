@@ -93,12 +93,12 @@ void SuperResolutionBase::UpdateZAndA(Mat& Z, Mat& A, int x, int y, const vector
 	}
 }
 
-void SuperResolutionBase::MedianAndShift(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances, const Size& new_size, Mat& Z, Mat& A)
+void SuperResolutionBase::MedianAndShift(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances, const Size& new_size, Mat& Z, Mat& A) const
 {
 	Z = Mat::zeros(new_size, CV_32FC1);
 	A = Mat::ones(new_size, CV_32FC1);
 
-	Mat S = Mat::zeros(Size(srFactor, srFactor), CV_8UC1);
+	Mat markMat = Mat::zeros(Size(srFactor, srFactor), CV_8UC1);
 
 	for (auto x = srFactor; x < 2 * srFactor; ++x)
 	{
@@ -113,22 +113,22 @@ void SuperResolutionBase::MedianAndShift(const vector<Mat>& interp_previous_fram
 					index.push_back(false);
 			}
 
-			auto len = Utils::CalculateCount(index,true);
+			auto len = Utils::CalculateCount(index, true);
 			if (len > 0)
 			{
-				S.at<uchar>(x - srFactor, y - srFactor) = 1;
-
+				markMat.at<uchar>(x - srFactor, y - srFactor) = 1;
 				UpdateZAndA(Z, A, x, y, index, interp_previous_frames, len);
 			}
 		}
 	}
 
-	Mat noneZeroMap = S == 0;
+	Mat noneZeroMapOfMarkMat = markMat == 0;
+
 	vector<int> X, Y;
-	for (auto r = 0; r < noneZeroMap.rows; ++r)
+	for (auto r = 0; r < noneZeroMapOfMarkMat.rows; ++r)
 	{
-		auto perRow = noneZeroMap.ptr<uchar>(r);
-		for (auto c = 0; c < noneZeroMap.cols; ++c)
+		auto perRow = noneZeroMapOfMarkMat.ptr<uchar>(r);
+		for (auto c = 0; c < noneZeroMapOfMarkMat.cols; ++c)
 		{
 			if (static_cast<int>(perRow[c]) != 0)
 			{
@@ -140,27 +140,29 @@ void SuperResolutionBase::MedianAndShift(const vector<Mat>& interp_previous_fram
 
 	if (X.size() != 0)
 	{
-		Mat Zmedian;
-		medianBlur(Z, Zmedian, srFactor+1);
-		auto row = Z.rows;
-		auto col = Z.cols;
+		Mat meidianBlurMatOfMatZ;
+		medianBlur(Z, meidianBlurMatOfMatZ, 3);
+
+		auto rowCount = Z.rows;
+		auto colCount = Z.cols;
 
 		for (auto i = 0; i < X.size(); ++i)
 		{
-			for (auto r = Y[i] + srFactor -1; r < row; r += srFactor)
+			for (auto r = Y[i] + srFactor - 1; r < rowCount; r += srFactor)
 			{
-				auto perLineOfZ = Z.ptr<float>(r);
-				auto perLineOfZmedian = Zmedian.ptr<float>(r);
+				auto rowOfMatZ = Z.ptr<float>(r);
+				auto rowOfMedianBlurMatOfMatZ = meidianBlurMatOfMatZ.ptr<float>(r);
 
-				for (auto c = X[i] + srFactor-1; c < col; c += srFactor)
-					perLineOfZ[c] = perLineOfZmedian[c];
+				for (auto c = X[i] + srFactor - 1; c < colCount; c += srFactor)
+					rowOfMatZ[c] = rowOfMedianBlurMatOfMatZ[c];
 			}
 		}
 	}
 
-	Mat copiedA;
-	cv::sqrt(A, copiedA);
-	copiedA.copyTo(A);
+	Mat rootedMatA;
+	sqrt(A, rootedMatA);
+	rootedMatA.copyTo(A);
+	rootedMatA.release();
 }
 
 Mat SuperResolutionBase::FastGradientBackProject(const Mat& hr, const Mat& Z, const Mat& A, const Mat& hpsf) const
