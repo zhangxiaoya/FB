@@ -62,8 +62,6 @@ void SuperResolutionBase::Init(Ptr<FrameSource>& frameSource)
 	currentFrame.release();
 }
 
-
-
 void SuperResolutionBase::UpdateZAndA(Mat& Z, Mat& A, int x, int y, const vector<bool>& index, const vector<Mat>& frames, const int len) const
 {
 	vector<Mat> selectedFrames;
@@ -165,24 +163,27 @@ void SuperResolutionBase::MedianAndShift(const vector<Mat>& interp_previous_fram
 	rootedMatA.release();
 }
 
-Mat SuperResolutionBase::FastGradientBackProject(const Mat& hr, const Mat& Z, const Mat& A, const Mat& hpsf) const
+Mat SuperResolutionBase::FastGradientBackProject(const Mat& Xn, const Mat& Z, const Mat& A, const Mat& hpsf)
 {
-	Mat newZ;
-	filter2D(Z, newZ, CV_32FC1, hpsf, Point(-1, -1), 0, BORDER_REFLECT);
-	Mat dis = newZ - Z;
-	Mat resMul = A.mul(dis);
+	Mat matZAfterGaussianFilter;
+	filter2D(Xn, matZAfterGaussianFilter, CV_32FC1, hpsf, Point(-1, -1), 0, BORDER_REFLECT);
 
-	Mat Gsign(resMul.rows, resMul.cols, CV_32FC1);
-	Utils::Sign(resMul, Gsign);
+	Mat diffOfZandMedianFiltedZ;
+	subtract(matZAfterGaussianFilter, Z, diffOfZandMedianFiltedZ);
 
-	Mat newhpsf;
-	flip(hpsf, newhpsf, -1);
-	Mat newA = A.mul(Gsign);
+	Mat multiplyOfdiffZAndA = A.mul(diffOfZandMedianFiltedZ);
 
-	Mat res;
-	filter2D(newA, res, CV_32FC1, newhpsf, Point(-1, -1), 0, BORDER_REFLECT);
+	Mat Gsign(multiplyOfdiffZAndA.rows, multiplyOfdiffZAndA.cols, CV_32FC1);
+	Utils::Sign(multiplyOfdiffZAndA, Gsign);
 
-	return res;
+	Mat inversedHpsf;
+	flip(hpsf, inversedHpsf, -1);
+	Mat multiplyOfGsingAndMatA = A.mul(Gsign);
+
+	Mat filterResult;
+	filter2D(multiplyOfGsingAndMatA, filterResult, CV_32FC1, inversedHpsf, Point(-1, -1), 0, BORDER_REFLECT);
+
+	return filterResult;
 }
 
 Mat SuperResolutionBase::GradientRegulization(const Mat& hr, double p, double alpha)

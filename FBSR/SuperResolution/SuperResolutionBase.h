@@ -23,8 +23,8 @@ public:
 protected:
 	void Init(Ptr<FrameSource>& frameSource);
 	void UpdateZAndA(Mat& mat, Mat& A, int x, int y, const vector<bool>& index, const vector<Mat>& mats, const int len) const;
-	void MedianAndShift(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances, const Size& new_size, Mat& mat, Mat& mat1);
-	Mat FastGradientBackProject(const Mat& hr, const Mat& mat, const Mat& mat1, const Mat& hpsf) const;
+	void MedianAndShift(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances, const Size& new_size, Mat& mat, Mat& mat1) const;
+	Mat FastGradientBackProject(const Mat& hr, const Mat& mat, const Mat& mat1, const Mat& hpsf);
 	Mat GradientRegulization(const Mat& hr, double p, double alpha);
 	Mat FastRobustSR(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances, Mat hpsf);
 	void Process(Ptr<FrameSource>& frameSource, OutputArray output);
