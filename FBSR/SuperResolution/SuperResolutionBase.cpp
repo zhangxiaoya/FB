@@ -69,7 +69,7 @@ int SuperResolutionBase::GetTrueCount(const vector<bool>& index)
 	return count;
 }
 
-float SuperResolutionBase::median(vector<unsigned char>& vector) const
+float SuperResolutionBase::median(vector<float>& vector) const
 {
 	sort(vector.begin(), vector.end());
 
@@ -85,10 +85,10 @@ void SuperResolutionBase::MedianThirdDim(const Mat& merged_frame, Mat& median_fr
 	for (auto i = 0; i < median_frame.rows; ++i)
 	{
 		auto rowData = median_frame.ptr<float>(i);
-		auto srcRowData = merged_frame.ptr<uchar>(i);
+		auto srcRowData = merged_frame.ptr<float>(i);
 		for (auto j = 0; j < median_frame.cols; ++j)
 		{
-			vector<uchar> element;
+			vector<float> element;
 			for (auto k = 0; k < merged_frame.channels(); ++k)
 				element.push_back(*(srcRowData + j + k));
 
@@ -175,12 +175,12 @@ void SuperResolutionBase::MedianAndShift(const vector<Mat>& interp_previous_fram
 
 		for (auto i = 0; i < X.size(); ++i)
 		{
-			for (auto r = Y[i] + srFactor -2; r < row; r += srFactor)
+			for (auto r = Y[i] + srFactor -1; r < row; r += srFactor)
 			{
 				auto perLineOfZ = Z.ptr<float>(r);
 				auto perLineOfZmedian = Zmedian.ptr<float>(r);
 
-				for (auto c = X[i] + srFactor-2; c < col; c += srFactor)
+				for (auto c = X[i] + srFactor-1; c < col; c += srFactor)
 					perLineOfZ[c] = perLineOfZmedian[c];
 			}
 		}

@@ -23,7 +23,7 @@ public:
 protected:
 	void Init(Ptr<FrameSource>& frameSource);
 	int GetTrueCount(const vector<bool>& index);
-	float median(vector<unsigned char>& vector) const;
+	float median(vector<float>& vector) const;
 	void MedianThirdDim(const Mat& merged_frame, Mat& median_frame);
 	void UpdateZAndA(Mat& mat, Mat& A, int x, int y, const vector<bool>& index, const vector<Mat>& mats, const int len);
 	void MedianAndShift(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances, const Size& new_size, Mat& mat, Mat& mat1);
