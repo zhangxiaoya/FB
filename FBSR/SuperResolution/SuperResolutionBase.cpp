@@ -64,14 +64,15 @@ void SuperResolutionBase::Init(Ptr<FrameSource>& frameSource)
 
 
 
-void SuperResolutionBase::UpdateZAndA(Mat& Z, Mat& A, int x, int y, const vector<bool>& index, const vector<Mat>& frames, const int len)
+void SuperResolutionBase::UpdateZAndA(Mat& Z, Mat& A, int x, int y, const vector<bool>& index, const vector<Mat>& frames, const int len) const
 {
 	vector<Mat> selectedFrames;
 	for (auto i = 0; i < index.size(); ++i)
 	{
-		if (index[i])
+		if (true == index[i])
 			selectedFrames.push_back(frames[i]);
 	}
+
 	Mat mergedFrame;
 	merge(selectedFrames, mergedFrame);
 
@@ -80,11 +81,14 @@ void SuperResolutionBase::UpdateZAndA(Mat& Z, Mat& A, int x, int y, const vector
 
 	for (auto r = x - 1; r < Z.rows-3; r += srFactor)
 	{
+		auto rowOfMatZ = Z.ptr<float>(r);
+		auto rowOfMatA = A.ptr<float>(r);
+		auto rowOfMedianFrame = medianFrame.ptr<float>(r / srFactor);
+
 		for (auto c = y - 1; c < Z.cols-3; c += srFactor)
 		{
-			auto at = medianFrame.at<float>(r / srFactor, c / srFactor);
-			Z.at<float>(r, c) = at;
-			A.at<float>(r, c) = len;
+			rowOfMatZ[c] = rowOfMedianFrame[c / srFactor];
+			rowOfMatA[c] = static_cast<float>(len);
 		}
 	}
 }
