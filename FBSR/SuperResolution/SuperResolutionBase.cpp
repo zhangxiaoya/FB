@@ -1,8 +1,10 @@
 #include "SuperResolutionBase.h"
 #include <highgui/highgui.hpp>
 #include <contrib/contrib.hpp>
+#include "../LKOFlow/LKOFlow.h"
+#include <algorithm>
 
-SuperResolutionBase::SuperResolutionBase(int bufferSize) : isFirstRun(false), bufferSize(bufferSize), srFactor(4), psfSize(3), psfSigma(1.0)
+SuperResolutionBase::SuperResolutionBase(int bufferSize) : isFirstRun(false), bufferSize(bufferSize), srFactor(4), psfSize(3), psfSigma(3.0)
 {
 	this->frameBuffer = new FrameBuffer(bufferSize);
 }
@@ -103,11 +105,11 @@ void SuperResolutionBase::UpdateZAndA(Mat& Z, Mat& A, int x, int y, const vector
 	Mat medianFrame(frames[0].rows, frames[0].cols, CV_32FC1);
 	MedianThirdDim(mergedFrame, medianFrame);
 
-	for (auto r = x - 1; r < Z.cols; r += srFactor)
+	for (auto r = x - 1; r < Z.rows; r += srFactor)
 	{
-		for (auto c = y - 1; c < Z.rows; c += srFactor)
+		for (auto c = y - 1; c < Z.cols; c += srFactor)
 		{
-			Z.at<float>(r, c) = mergedFrame.at<float>(r % srFactor, c % srFactor);
+			Z.at<float>(r, c) = medianFrame.at<float>(r % srFactor, c % srFactor);
 			A.at<float>(r, c) = len;
 		}
 	}
@@ -120,11 +122,11 @@ void SuperResolutionBase::MedianAndShift(const vector<Mat>& interp_previous_fram
 
 	Mat S = Mat::zeros(Size(srFactor, srFactor), CV_8UC1);
 
-	vector<bool> index;
 	for (auto x = srFactor; x < 2 * srFactor; ++x)
 	{
 		for (auto y = srFactor; y < 2 * srFactor; ++y)
 		{
+			vector<bool> index;
 			for (auto k = 0; k < current_distances.size(); ++k)
 			{
 				if (current_distances[k][0] == x && current_distances[k][1] == y)
@@ -161,7 +163,7 @@ void SuperResolutionBase::MedianAndShift(const vector<Mat>& interp_previous_fram
 	if (X.size() != 0)
 	{
 		Mat Zmedian;
-		medianBlur(Z, Zmedian, srFactor);
+		medianBlur(Z, Zmedian, srFactor+1);
 		auto row = Z.rows;
 		auto col = Z.cols;
 
@@ -185,12 +187,12 @@ void SuperResolutionBase::MedianAndShift(const vector<Mat>& interp_previous_fram
 
 void SuperResolutionBase::MySign(const Mat& srcMat, Mat& destMat) const
 {
-	for(auto r=0;r<srcMat.rows;++r)
+	for (auto r = 0; r < srcMat.rows; ++r)
 	{
 		auto perLineSrc = srcMat.ptr<uchar>(r);
 		auto perLineDest = destMat.ptr<uchar>(r);
 
-		for(auto c = 0;c < srcMat.cols;++c)
+		for (auto c = 0; c < srcMat.cols; ++c)
 		{
 			if (static_cast<int>(perLineSrc[c]) > 0)
 				perLineDest[c] = static_cast<uchar>(1);
@@ -209,17 +211,54 @@ Mat SuperResolutionBase::FastGradientBackProject(const Mat& hr, const Mat& Z, co
 	Mat dis = newZ - Z;
 	Mat resMul = A.mul(dis);
 
-	Mat Gsign(resMul.rows, resMul.cols, CV_8UC1);
+
+	Mat Gsign(resMul.rows, resMul.cols, CV_32FC1);
 	MySign(resMul, Gsign);
 
 	Mat newhpsf;
-	flip(hpsf,newhpsf,-1);
+	flip(hpsf, newhpsf, -1);
 	Mat newA = A.mul(Gsign);
 
 	Mat res;
 	filter2D(newA, res, CV_32FC1, newhpsf, Point(-1, -1), 0, BORDER_REFLECT);
 
 	return res;
+}
+
+Mat SuperResolutionBase::GradientRegulization(const Mat& hr, double p, double alpha)
+{
+	Mat G = Mat::zeros(hr.rows, hr.cols, CV_32FC1);
+
+	Mat paddedHr;
+	copyMakeBorder(hr, paddedHr, p, p, p, p, BORDER_REFLECT);
+	for (int i = -1 * p; i <= p; ++i)
+	{
+		for (int j = -1 * p; j <= p; ++j)
+		{
+			Rect rectOne(Point(0 + p - i, 0 + p - j), Point(paddedHr.cols - 1 - p - i, paddedHr.rows - 1 - p - j));
+			auto selectMat = paddedHr(rectOne);
+
+			Mat dis = hr - selectMat;
+
+			Mat Xsign(dis.rows, dis.cols, CV_8UC1);
+			MySign(dis, Xsign);
+
+			Mat paddedXsign;
+			copyMakeBorder(Xsign, paddedXsign, p, p, p, p, BORDER_CONSTANT, 0);
+
+			Rect receTwo(Point(0 + p + i, 0 + p + j), Point(paddedXsign.cols - 1 - p + i, paddedXsign.rows - 1 - p + j));
+			auto selectedXsign = paddedXsign(receTwo);
+
+			Mat diss = Xsign - selectedXsign;
+
+			selectedXsign *= (abs(i) + abs(j));
+			Mat tempRes;
+			pow(selectedXsign, props.alpha, tempRes);
+
+			G += tempRes;
+		}
+	}
+	return G;
 }
 
 void SuperResolutionBase::FastRobustSR(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances, Mat hpsf)
@@ -233,16 +272,22 @@ void SuperResolutionBase::FastRobustSR(const vector<Mat>& interp_previous_frames
 
 	auto iter = 0;
 
-	while(iter < props.maxIterationCount)
+	while (iter < props.maxIterationCount)
 	{
 		auto Gback = FastGradientBackProject(HR, Z, A, hpsf);
+		auto Greg = GradientRegulization(HR, props.P, props.alpha);
+
+		Mat temRes = (Greg + Greg.mul(props.lambda));
+		HR -= temRes.mul(props.beta);
+
+		iter = iter + 1;
 	}
 }
 
 Mat SuperResolutionBase::GetGaussianKernal() const
 {
-	auto halfSize = (srFactor - 1) / 2;
-	Mat K(srFactor, srFactor, CV_32FC1);
+	auto halfSize = (static_cast<int>(psfSigma) - 1) / 2;
+	Mat K(static_cast<int>(psfSigma), static_cast<int>(psfSigma), CV_32FC1);
 
 	auto s2 = 2.0 * psfSigma * psfSigma;
 	for (auto i = (-halfSize); i <= halfSize; i++)
@@ -287,15 +332,13 @@ vector<Mat> SuperResolutionBase::NearestInterp2(const vector<Mat>& previousFrame
 
 void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray outputFrame)
 {
-	namedWindow("Current Frame");
-	namedWindow("Previous Frames");
+//	namedWindow("Current Frame");
 
 	Mat currentFrame;
 
 	while (frameBuffer->CurrentFrame().data)
 	{
-		imshow("Current Frame", frameBuffer->CurrentFrame());
-		waitKey(100);
+//		imshow("Current Frame", frameBuffer->CurrentFrame());
 
 		auto previous_frames = frameBuffer->GetAll();
 		auto currentDistances = RegisterImages(previous_frames);
@@ -304,7 +347,7 @@ void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray out
 
 		auto Hpsf = GetGaussianKernal();
 
-		FastRobustSR(interpPreviousFrames, currentDistances,Hpsf);
+		FastRobustSR(interpPreviousFrames, currentDistances, Hpsf);
 
 		/*
 		 for (auto i = 0; i < bufferSize; ++i)
@@ -326,6 +369,7 @@ vector<vector<double>> SuperResolutionBase::RegisterImages(vector<Mat>& frames)
 {
 	vector<vector<double>> result;
 	Rect rectROI(0, 0, frames[0].cols, frames[0].rows);
+	result.push_back(vector<double>(2, 0.0));
 
 	for (auto i = 1; i < frames.size(); ++i)
 	{

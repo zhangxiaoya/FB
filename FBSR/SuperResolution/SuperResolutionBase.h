@@ -5,8 +5,6 @@
 #include "FrameBuffer/FrameBuffer.h"
 #include "../FrameSource/FrameSource.h"
 #include "../PropsStruct.h"
-#include "../LKOFlow/LKOFlow.h"
-#include <algorithm>
 
 using namespace std;
 using namespace cv;
@@ -31,6 +29,7 @@ protected:
 	void MedianAndShift(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances, const Size& new_size, Mat& mat, Mat& mat1);
 	void MySign(const Mat& srcMat, Mat& destMat) const;
 	Mat FastGradientBackProject(const Mat& hr, const Mat& mat, const Mat& mat1, const Mat& hpsf) const;
+	Mat GradientRegulization(const Mat& hr, double p, double alpha);
 	void FastRobustSR(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances, Mat hpsf);
 	Mat GetGaussianKernal() const;
 	void Process(Ptr<FrameSource>& frameSource, OutputArray output);
