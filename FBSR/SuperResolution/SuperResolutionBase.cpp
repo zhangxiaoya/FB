@@ -3,8 +3,11 @@
 #include <contrib/contrib.hpp>
 #include "../LKOFlow/LKOFlow.h"
 #include <algorithm>
+#include <iostream>
+#include "ReadEmilyImageList.hpp"
+#include "../Utils/Utils.hpp"
 
-SuperResolutionBase::SuperResolutionBase(int bufferSize) : isFirstRun(false), bufferSize(bufferSize), srFactor(4), psfSize(3), psfSigma(3.0)
+SuperResolutionBase::SuperResolutionBase(int bufferSize) : isFirstRun(false), bufferSize(bufferSize), srFactor(4), psfSize(3), psfSigma(1.0)
 {
 	this->frameBuffer = new FrameBuffer(bufferSize);
 }
@@ -34,18 +37,21 @@ bool SuperResolutionBase::Reset()
 
 void SuperResolutionBase::NextFrame(OutputArray outputFrame)
 {
+	isFirstRun = false;
 	if (isFirstRun)
 	{
 		Init(this->frameSource);
 		isFirstRun = false;
 	}
+	SetProps(0.7, 1, 0.04, 2, 20);
 	Process(this->frameSource, outputFrame);
 }
 
 void SuperResolutionBase::Init(Ptr<FrameSource>& frameSource)
 {
 	Mat currentFrame;
-	SetProps(0.7, 1, 0.04, 2, 10);
+	SetProps(0.7, 1, 0.04, 2, 20);
+
 	for (auto i = 0; i < bufferSize; ++i)
 	{
 		frameSource->nextFrame(currentFrame);
@@ -56,71 +62,41 @@ void SuperResolutionBase::Init(Ptr<FrameSource>& frameSource)
 	currentFrame.release();
 }
 
-int SuperResolutionBase::GetTrueCount(const vector<bool>& index)
-{
-	auto count = 0;
-	for (auto curElem : index)
-		curElem ? count++ : count;
-	return count;
-}
-
-float SuperResolutionBase::median(vector<unsigned char>& vector) const
-{
-	sort(vector.begin(), vector.end());
-
-	auto len = vector.size();
-	if (len % 2 != 0)
-		return vector[len / 2];
-	return float(vector[len / 2] + vector[(len - 1) / 2]) / 2.0;
-}
-
-void SuperResolutionBase::MedianThirdDim(const Mat& merged_frame, Mat& median_frame)
-{
-	for (auto i = 0; i < median_frame.rows; ++i)
-	{
-		auto rowData = median_frame.ptr<float>(i);
-		auto srcRowData = merged_frame.ptr<uchar>(i);
-		for (auto j = 0; j < median_frame.cols; ++j)
-		{
-			vector<uchar> element;
-			for (auto k = 0; k < merged_frame.channels(); ++k)
-				element.push_back(*(srcRowData + j + k));
-
-			rowData[j] = median(element);
-		}
-	}
-}
-
-void SuperResolutionBase::UpdateZAndA(Mat& Z, Mat& A, int x, int y, const vector<bool>& index, const vector<Mat>& frames, const int len)
+void SuperResolutionBase::UpdateZAndA(Mat& Z, Mat& A, int x, int y, const vector<bool>& index, const vector<Mat>& frames, const int len) const
 {
 	vector<Mat> selectedFrames;
 	for (auto i = 0; i < index.size(); ++i)
 	{
-		if (index[i])
+		if (true == index[i])
 			selectedFrames.push_back(frames[i]);
 	}
+
 	Mat mergedFrame;
 	merge(selectedFrames, mergedFrame);
 
 	Mat medianFrame(frames[0].rows, frames[0].cols, CV_32FC1);
-	MedianThirdDim(mergedFrame, medianFrame);
+	Utils::CalculatedMedian(mergedFrame, medianFrame);
 
-	for (auto r = x - 1; r < Z.rows; r += srFactor)
+	for (auto r = x - 1; r < Z.rows-3; r += srFactor)
 	{
-		for (auto c = y - 1; c < Z.cols; c += srFactor)
+		auto rowOfMatZ = Z.ptr<float>(r);
+		auto rowOfMatA = A.ptr<float>(r);
+		auto rowOfMedianFrame = medianFrame.ptr<float>(r / srFactor);
+
+		for (auto c = y - 1; c < Z.cols-3; c += srFactor)
 		{
-			Z.at<float>(r, c) = medianFrame.at<float>(r % srFactor, c % srFactor);
-			A.at<float>(r, c) = len;
+			rowOfMatZ[c] = rowOfMedianFrame[c / srFactor];
+			rowOfMatA[c] = static_cast<float>(len);
 		}
 	}
 }
 
-void SuperResolutionBase::MedianAndShift(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances, const Size& new_size, Mat& Z, Mat& A)
+void SuperResolutionBase::MedianAndShift(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances, const Size& new_size, Mat& Z, Mat& A) const
 {
 	Z = Mat::zeros(new_size, CV_32FC1);
 	A = Mat::ones(new_size, CV_32FC1);
 
-	Mat S = Mat::zeros(Size(srFactor, srFactor), CV_8UC1);
+	Mat markMat = Mat::zeros(Size(srFactor, srFactor), CV_8UC1);
 
 	for (auto x = srFactor; x < 2 * srFactor; ++x)
 	{
@@ -135,22 +111,22 @@ void SuperResolutionBase::MedianAndShift(const vector<Mat>& interp_previous_fram
 					index.push_back(false);
 			}
 
-			auto len = GetTrueCount(index);
+			auto len = Utils::CalculateCount(index, true);
 			if (len > 0)
 			{
-				S.at<uchar>(x - srFactor, y - srFactor) = 1;
-
+				markMat.at<uchar>(x - srFactor, y - srFactor) = 1;
 				UpdateZAndA(Z, A, x, y, index, interp_previous_frames, len);
 			}
 		}
 	}
 
-	Mat noneZeroMap = S == 0;
+	Mat noneZeroMapOfMarkMat = markMat == 0;
+
 	vector<int> X, Y;
-	for (auto r = 0; r < noneZeroMap.rows; ++r)
+	for (auto r = 0; r < noneZeroMapOfMarkMat.rows; ++r)
 	{
-		auto perRow = noneZeroMap.ptr<uchar>(r);
-		for (auto c = 0; c < noneZeroMap.cols; ++c)
+		auto perRow = noneZeroMapOfMarkMat.ptr<uchar>(r);
+		for (auto c = 0; c < noneZeroMapOfMarkMat.cols; ++c)
 		{
 			if (static_cast<int>(perRow[c]) != 0)
 			{
@@ -162,99 +138,84 @@ void SuperResolutionBase::MedianAndShift(const vector<Mat>& interp_previous_fram
 
 	if (X.size() != 0)
 	{
-		Mat Zmedian;
-		medianBlur(Z, Zmedian, srFactor+1);
-		auto row = Z.rows;
-		auto col = Z.cols;
+		Mat meidianBlurMatOfMatZ;
+		medianBlur(Z, meidianBlurMatOfMatZ, 3);
+
+		auto rowCount = Z.rows;
+		auto colCount = Z.cols;
 
 		for (auto i = 0; i < X.size(); ++i)
 		{
-			for (auto r = Y[i] + srFactor - 2; r < row; r += srFactor)
+			for (auto r = Y[i] + srFactor - 1; r < rowCount; r += srFactor)
 			{
-				auto perLineOfZ = Z.ptr<float>(r);
-				auto perLineOfZmedian = Zmedian.ptr<float>(r);
+				auto rowOfMatZ = Z.ptr<float>(r);
+				auto rowOfMedianBlurMatOfMatZ = meidianBlurMatOfMatZ.ptr<float>(r);
 
-				for (auto c = X[i] + srFactor - 2; c < col; c += srFactor)
-					perLineOfZ[c] = perLineOfZmedian[c];
+				for (auto c = X[i] + srFactor - 1; c < colCount; c += srFactor)
+					rowOfMatZ[c] = rowOfMedianBlurMatOfMatZ[c];
 			}
 		}
 	}
 
-	Mat copiedA;
-	cv::sqrt(A, copiedA);
-	copiedA.copyTo(A);
+	Mat rootedMatA;
+	sqrt(A, rootedMatA);
+	rootedMatA.copyTo(A);
+	rootedMatA.release();
 }
 
-void SuperResolutionBase::MySign(const Mat& srcMat, Mat& destMat) const
+Mat SuperResolutionBase::FastGradientBackProject(const Mat& Xn, const Mat& Z, const Mat& A, const Mat& hpsf)
 {
-	for (auto r = 0; r < srcMat.rows; ++r)
+	Mat matZAfterGaussianFilter;
+	filter2D(Xn, matZAfterGaussianFilter, CV_32FC1, hpsf, Point(-1, -1), 0, BORDER_REFLECT);
+
+	Mat diffOfZandMedianFiltedZ;
+	subtract(matZAfterGaussianFilter, Z, diffOfZandMedianFiltedZ);
+
+	Mat multiplyOfdiffZAndA = A.mul(diffOfZandMedianFiltedZ);
+
+	Mat Gsign(multiplyOfdiffZAndA.rows, multiplyOfdiffZAndA.cols, CV_32FC1);
+	Utils::Sign(multiplyOfdiffZAndA, Gsign);
+
+	Mat inversedHpsf;
+	flip(hpsf, inversedHpsf, -1);
+	Mat multiplyOfGsingAndMatA = A.mul(Gsign);
+
+	Mat filterResult;
+	filter2D(multiplyOfGsingAndMatA, filterResult, CV_32FC1, inversedHpsf, Point(-1, -1), 0, BORDER_REFLECT);
+
+	return filterResult;
+}
+
+Mat SuperResolutionBase::GradientRegulization(const Mat& Xn, const double P, const double alpha) const
+{
+	Mat G = Mat::zeros(Xn.rows, Xn.cols, CV_32FC1);
+
+	Mat paddedXn;
+	copyMakeBorder(Xn, paddedXn, P, P, P, P, BORDER_REFLECT);
+
+	for (int i = -1 * P; i <= P; ++i)
 	{
-		auto perLineSrc = srcMat.ptr<uchar>(r);
-		auto perLineDest = destMat.ptr<uchar>(r);
-
-		for (auto c = 0; c < srcMat.cols; ++c)
+		for (int j = -1 * P; j <= P; ++j)
 		{
-			if (static_cast<int>(perLineSrc[c]) > 0)
-				perLineDest[c] = static_cast<uchar>(1);
-			else if (static_cast<int>(perLineSrc[c]) < 0)
-				perLineDest[c] = static_cast<uchar>(-1);
-			else
-				perLineDest[c] = static_cast<uchar>(0);
-		}
-	}
-}
+			Rect shiftedXnRect(Point(0 + P - i, 0 + P - j), Point(paddedXn.cols - P - i, paddedXn.rows - P - j));
+			auto shiftedXn = paddedXn(shiftedXnRect);
 
-Mat SuperResolutionBase::FastGradientBackProject(const Mat& hr, const Mat& Z, const Mat& A, const Mat& hpsf) const
-{
-	Mat newZ;
-	filter2D(Z, newZ, CV_32FC1, hpsf, Point(-1, -1), 0, BORDER_REFLECT);
-	Mat dis = newZ - Z;
-	Mat resMul = A.mul(dis);
+			Mat diffOfXnAndShiftedXn = Xn - shiftedXn;
+			Mat signOfDiff(diffOfXnAndShiftedXn.rows, diffOfXnAndShiftedXn.cols, CV_32FC1);
+			Utils::Sign(diffOfXnAndShiftedXn, signOfDiff);
 
-	Mat Gsign(resMul.rows, resMul.cols, CV_32FC1);
-	MySign(resMul, Gsign);
+			Mat paddedSignOfDiff;
+			copyMakeBorder(signOfDiff, paddedSignOfDiff, P, P, P, P, BORDER_CONSTANT, 0);
 
-	Mat newhpsf;
-	flip(hpsf, newhpsf, -1);
-	Mat newA = A.mul(Gsign);
+			Rect shiftedSignedOfDiffRect(Point(0 + P + i, 0 + P + j), Point(paddedSignOfDiff.cols - P + i, paddedSignOfDiff.rows - P + j));
+			auto shiftedSignOfDiff = paddedSignOfDiff(shiftedSignedOfDiffRect);
 
-	Mat res;
-	filter2D(newA, res, CV_32FC1, newhpsf, Point(-1, -1), 0, BORDER_REFLECT);
+			Mat diffOfSignAndShiftedSign = signOfDiff - shiftedSignOfDiff;
 
-	return res;
-}
+			auto tempScale = pow(alpha, (abs(i) + abs(j)));
+			diffOfSignAndShiftedSign *= tempScale;
 
-Mat SuperResolutionBase::GradientRegulization(const Mat& hr, double p, double alpha)
-{
-	Mat G = Mat::zeros(hr.rows, hr.cols, CV_32FC1);
-
-	Mat paddedHr;
-	copyMakeBorder(hr, paddedHr, p, p, p, p, BORDER_REFLECT);
-	for (int i = -1 * p; i <= p; ++i)
-	{
-		for (int j = -1 * p; j <= p; ++j)
-		{
-			Rect rectOne(Point(0 + p - i, 0 + p - j), Point(paddedHr.cols - p - i, paddedHr.rows - p - j));
-			auto selectMat = paddedHr(rectOne);
-
-			Mat dis = hr - selectMat;
-
-			Mat Xsign(dis.rows, dis.cols, CV_32FC1);
-			MySign(dis, Xsign);
-
-			Mat paddedXsign;
-			copyMakeBorder(Xsign, paddedXsign, p, p, p, p, BORDER_CONSTANT, 0);
-
-			Rect receTwo(Point(0 + p + i, 0 + p + j), Point(paddedXsign.cols - p + i, paddedXsign.rows - p + j));
-			auto selectedXsign = paddedXsign(receTwo);
-
-			Mat diss = Xsign - selectedXsign;
-
-			selectedXsign *= (abs(i) + abs(j));
-			Mat tempRes;
-			pow(selectedXsign, props.alpha, tempRes);
-
-			G += tempRes;
+			G += diffOfSignAndShiftedSign;
 		}
 	}
 	return G;
@@ -269,42 +230,20 @@ Mat SuperResolutionBase::FastRobustSR(const vector<Mat>& interp_previous_frames,
 	Mat HR;
 	Z.copyTo(HR);
 
-	auto iter = 0;
+	auto iter = 1;
 
 	while (iter < props.maxIterationCount)
 	{
 		auto Gback = FastGradientBackProject(HR, Z, A, hpsf);
 		auto Greg = GradientRegulization(HR, props.P, props.alpha);
 
-		Mat temRes = (Greg + Greg.mul(props.lambda));
-		HR -= temRes.mul(props.beta);
+		Greg *= props.lambda;
+		Mat tempResultOfIteration = (Gback + Greg) * props.beta;
+		HR -= tempResultOfIteration;
 
-		iter = iter + 1;
+		++iter;
 	}
 	return HR;
-}
-
-Mat SuperResolutionBase::GetGaussianKernal() const
-{
-	auto halfSize = (static_cast<int>(psfSigma) - 1) / 2;
-	Mat K(static_cast<int>(psfSigma), static_cast<int>(psfSigma), CV_32FC1);
-
-	auto s2 = 2.0 * psfSigma * psfSigma;
-	for (auto i = (-halfSize); i <= halfSize; i++)
-	{
-		auto m = i + halfSize;
-		for (auto j = (-halfSize); j <= halfSize; j++)
-		{
-			auto n = j + halfSize;
-			float v = exp(-(1.0 * i * i + 1.0 * j * j) / s2);
-			K.ptr<float>(m)[n] = v;
-		}
-	}
-	auto all = sum(K);
-	Mat gaussK;
-	K.convertTo(gaussK, CV_32FC1, (1 / all[0]));
-
-	return gaussK;
 }
 
 vector<Mat> SuperResolutionBase::NearestInterp2(const vector<Mat>& previousFrames, const vector<vector<double>>& distances) const
@@ -332,47 +271,55 @@ vector<Mat> SuperResolutionBase::NearestInterp2(const vector<Mat>& previousFrame
 
 void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray outputFrame)
 {
-//	namedWindow("Current Frame");
+	bufferSize = 53;
+	auto emilyImageCount = 53;
+	vector<Mat> EmilyImageList;
+	EmilyImageList.resize(emilyImageCount);
+	ReadEmilyImageList::ReadImageList(EmilyImageList, emilyImageCount);
 
-	Mat currentFrame;
+	frameSize = Size(EmilyImageList[0].cols, EmilyImageList[0].rows);
+	auto currentDistances = RegisterImages(EmilyImageList);
+	auto restDistances = CollectParms(currentDistances);
+	auto interpPreviousFrames = NearestInterp2(EmilyImageList, restDistances);
 
-	while (frameBuffer->CurrentFrame().data)
-	{
-//		imshow("Current Frame", frameBuffer->CurrentFrame());
+	auto Hpsf = Utils::GetGaussianKernal(psfSize, psfSigma);
 
-		auto previous_frames = frameBuffer->GetAll();
-		auto currentDistances = RegisterImages(previous_frames);
-		auto restDistances = CollectParms(currentDistances);
-		auto interpPreviousFrames = NearestInterp2(previous_frames, restDistances);
+	auto Hr = FastRobustSR(interpPreviousFrames, currentDistances, Hpsf);
 
-		auto Hpsf = GetGaussianKernal();
+	Mat UcharHr;
+	Hr.convertTo(UcharHr, CV_8UC1);
 
-		auto Hr = FastRobustSR(interpPreviousFrames, currentDistances, Hpsf);
-
-		Mat sss;
-		Hr.convertTo(sss, CV_8UC1);
-		imshow("test", sss);
-
-		/*
-		 for (auto i = 0; i < bufferSize; ++i)
-		{
-			imshow("Previous Frames", PreviousFrames[i]);
-			waitKey(100);
-		}
-		 */
-
-		frameSource->nextFrame(currentFrame);
-		frameBuffer->PushGray(currentFrame);
-	}
-
-	currentFrame.release();
-	destroyAllWindows();
+//	Mat currentFrame;
+//	while (frameBuffer->CurrentFrame().data)
+//	{
+//		auto previous_frames = frameBuffer->GetAll();
+//		auto currentDistances = RegisterImages(previous_frames);
+//		auto restDistances = CollectParms(currentDistances);
+//		auto interpPreviousFrames = NearestInterp2(previous_frames, restDistances);
+//		auto Hpsf = GetGaussianKernal();
+//		auto Hr = FastRobustSR(interpPreviousFrames, currentDistances, Hpsf);
+//		cout << Hr(Rect(0, 0, 16, 16)) << endl;
+//		cout << endl;
+//		Mat UcharHr;
+//		Hr.convertTo(UcharHr, CV_8UC1);
+//		 for (auto i = 0; i < bufferSize; ++i)
+//		{
+//			imshow("Previous Frames", PreviousFrames[i]);
+//			waitKey(100);
+//		}
+//		cout << UcharHr(Rect(0, 0, 16, 16)) << endl;
+//		frameSource->nextFrame(currentFrame);
+//		frameBuffer->PushGray(currentFrame);
+//	}
+//	currentFrame.release();
+//	destroyAllWindows();
 }
 
 vector<vector<double>> SuperResolutionBase::RegisterImages(vector<Mat>& frames)
 {
 	vector<vector<double>> result;
 	Rect rectROI(0, 0, frames[0].cols, frames[0].rows);
+
 	result.push_back(vector<double>(2, 0.0));
 
 	for (auto i = 1; i < frames.size(); ++i)
