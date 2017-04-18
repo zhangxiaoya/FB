@@ -186,37 +186,36 @@ Mat SuperResolutionBase::FastGradientBackProject(const Mat& Xn, const Mat& Z, co
 	return filterResult;
 }
 
-Mat SuperResolutionBase::GradientRegulization(const Mat& hr, double p, double alpha)
+Mat SuperResolutionBase::GradientRegulization(const Mat& Xn, const double P, const double alpha) const
 {
-	Mat G = Mat::zeros(hr.rows, hr.cols, CV_32FC1);
+	Mat G = Mat::zeros(Xn.rows, Xn.cols, CV_32FC1);
 
-	Mat paddedHr;
-	copyMakeBorder(hr, paddedHr, p, p, p, p, BORDER_REFLECT);
-	for (int i = -1 * p; i <= p; ++i)
+	Mat paddedXn;
+	copyMakeBorder(Xn, paddedXn, P, P, P, P, BORDER_REFLECT);
+
+	for (int i = -1 * P; i <= P; ++i)
 	{
-		for (int j = -1 * p; j <= p; ++j)
+		for (int j = -1 * P; j <= P; ++j)
 		{
-			Rect rectOne(Point(0 + p - i, 0 + p - j), Point(paddedHr.cols - p - i, paddedHr.rows - p - j));
-			auto selectMat = paddedHr(rectOne);
+			Rect shiftedXnRect(Point(0 + P - i, 0 + P - j), Point(paddedXn.cols - P - i, paddedXn.rows - P - j));
+			auto shiftedXn = paddedXn(shiftedXnRect);
 
-			Mat dis = hr - selectMat;
+			Mat diffOfXnAndShiftedXn = Xn - shiftedXn;
+			Mat signOfDiff(diffOfXnAndShiftedXn.rows, diffOfXnAndShiftedXn.cols, CV_32FC1);
+			Utils::Sign(diffOfXnAndShiftedXn, signOfDiff);
 
-			Mat Xsign(dis.rows, dis.cols, CV_32FC1);
-			Utils::Sign(dis, Xsign);
+			Mat paddedSignOfDiff;
+			copyMakeBorder(signOfDiff, paddedSignOfDiff, P, P, P, P, BORDER_CONSTANT, 0);
 
-			Mat paddedXsign;
-			copyMakeBorder(Xsign, paddedXsign, p, p, p, p, BORDER_CONSTANT, 0);
+			Rect shiftedSignedOfDiffRect(Point(0 + P + i, 0 + P + j), Point(paddedSignOfDiff.cols - P + i, paddedSignOfDiff.rows - P + j));
+			auto shiftedSignOfDiff = paddedSignOfDiff(shiftedSignedOfDiffRect);
 
-			Rect receTwo(Point(0 + p + i, 0 + p + j), Point(paddedXsign.cols - p + i, paddedXsign.rows - p + j));
-			auto selectedXsign = paddedXsign(receTwo);
+			Mat diffOfSignAndShiftedSign = signOfDiff - shiftedSignOfDiff;
 
-			Mat diss = Xsign - selectedXsign;
+			auto tempScale = pow(alpha, (abs(i) + abs(j)));
+			diffOfSignAndShiftedSign *= tempScale;
 
-			selectedXsign *= (abs(i) + abs(j));
-			Mat tempRes;
-			pow(selectedXsign, props.alpha, tempRes);
-
-			G += tempRes;
+			G += diffOfSignAndShiftedSign;
 		}
 	}
 	return G;
