@@ -278,7 +278,7 @@ void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray out
 	EmilyImageList.resize(emilyImageCount);
 	ReadEmilyImageList::ReadImageList(EmilyImageList, emilyImageCount);
 
-	frameSize = Size(EmilyImageList[1].cols,EmilyImageList[1].rows);
+	frameSize = Size(EmilyImageList[0].cols, EmilyImageList[0].rows);
 	auto currentDistances = RegisterImages(EmilyImageList);
 	auto restDistances = CollectParms(currentDistances);
 	auto interpPreviousFrames = NearestInterp2(EmilyImageList, restDistances);
