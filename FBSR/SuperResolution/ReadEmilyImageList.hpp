@@ -2,7 +2,6 @@
 #include <core/core.hpp>
 #include <vector>
 #include <highgui/highgui.hpp>
-#include <contrib/contrib.hpp>
 
 using namespace std;
 using namespace cv;
