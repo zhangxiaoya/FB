@@ -195,17 +195,17 @@ void SuperResolutionBase::MySign(const Mat& srcMat, Mat& destMat) const
 {
 	for (auto r = 0; r < srcMat.rows; ++r)
 	{
-		auto perLineSrc = srcMat.ptr<uchar>(r);
-		auto perLineDest = destMat.ptr<uchar>(r);
+		auto perLineSrc = srcMat.ptr<float>(r);
+		auto perLineDest = destMat.ptr<float>(r);
 
 		for (auto c = 0; c < srcMat.cols; ++c)
 		{
 			if (static_cast<int>(perLineSrc[c]) > 0)
-				perLineDest[c] = static_cast<uchar>(1);
+				perLineDest[c] = static_cast<float>(1);
 			else if (static_cast<int>(perLineSrc[c]) < 0)
-				perLineDest[c] = static_cast<uchar>(-1);
+				perLineDest[c] = static_cast<float>(-1);
 			else
-				perLineDest[c] = static_cast<uchar>(0);
+				perLineDest[c] = static_cast<float>(0);
 		}
 	}
 }
@@ -282,7 +282,7 @@ Mat SuperResolutionBase::FastRobustSR(const vector<Mat>& interp_previous_frames,
 		auto Gback = FastGradientBackProject(HR, Z, A, hpsf);
 		auto Greg = GradientRegulization(HR, props.P, props.alpha);
 
-		Mat temRes = (Greg + Greg.mul(props.lambda));
+		Mat temRes = (Gback + Greg.mul(props.lambda));
 		HR -= temRes.mul(props.beta);
 
 		iter = iter + 1;
