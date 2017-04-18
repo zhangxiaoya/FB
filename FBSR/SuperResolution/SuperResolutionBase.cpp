@@ -230,18 +230,20 @@ Mat SuperResolutionBase::FastRobustSR(const vector<Mat>& interp_previous_frames,
 	Mat HR;
 	Z.copyTo(HR);
 
-	auto iter = 0;
+	auto iter = 1;
 
 	while (iter < props.maxIterationCount)
 	{
 		auto Gback = FastGradientBackProject(HR, Z, A, hpsf);
 		auto Greg = GradientRegulization(HR, props.P, props.alpha);
 
-		Mat temRes = (Gback + Greg.mul(props.lambda));
-		HR -= temRes.mul(props.beta);
+		Greg *= props.lambda;
+		Mat tempResultOfIteration = (Gback + Greg) * props.beta;
+		HR -= tempResultOfIteration;
 
-		iter = iter + 1;
+		++iter;
 	}
+
 	return HR;
 }
 
@@ -295,29 +297,21 @@ void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray out
 //		auto currentDistances = RegisterImages(previous_frames);
 //		auto restDistances = CollectParms(currentDistances);
 //		auto interpPreviousFrames = NearestInterp2(previous_frames, restDistances);
-
 //		auto Hpsf = GetGaussianKernal();
-
 //		auto Hr = FastRobustSR(interpPreviousFrames, currentDistances, Hpsf);
 //		cout << Hr(Rect(0, 0, 16, 16)) << endl;
 //		cout << endl;
-
 //		Mat UcharHr;
 //		Hr.convertTo(UcharHr, CV_8UC1);
-
-		/*
-		 for (auto i = 0; i < bufferSize; ++i)
-		{
-			imshow("Previous Frames", PreviousFrames[i]);
-			waitKey(100);
-		}
-		 */
+//		 for (auto i = 0; i < bufferSize; ++i)
+//		{
+//			imshow("Previous Frames", PreviousFrames[i]);
+//			waitKey(100);
+//		}
 //		cout << UcharHr(Rect(0, 0, 16, 16)) << endl;
-
 //		frameSource->nextFrame(currentFrame);
 //		frameBuffer->PushGray(currentFrame);
 //	}
-
 //	currentFrame.release();
 //	destroyAllWindows();
 }
