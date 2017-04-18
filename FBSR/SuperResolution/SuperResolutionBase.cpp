@@ -62,33 +62,7 @@ void SuperResolutionBase::Init(Ptr<FrameSource>& frameSource)
 	currentFrame.release();
 }
 
-float SuperResolutionBase::median(vector<float>& vector) const
-{
-	sort(vector.begin(), vector.end());
 
-	auto len = vector.size();
-	if (len % 2 != 0)
-		return vector[len / 2];
-	return float(vector[len / 2] + vector[(len - 1) / 2]) / 2.0;
-}
-
-void SuperResolutionBase::MedianThirdDim(const Mat& merged_frame, Mat& median_frame)
-{
-	// something wrong here
-	for (auto i = 0; i < median_frame.rows; ++i)
-	{
-		auto rowData = median_frame.ptr<float>(i);
-		auto srcRowData = merged_frame.ptr<float>(i);
-		for (auto j = 0; j < median_frame.cols; ++j)
-		{
-			vector<float> element;
-			for (auto k = 0; k < merged_frame.channels(); ++k)
-				element.push_back(*(srcRowData + j + k));
-
-			rowData[j] = median(element);
-		}
-	}
-}
 
 void SuperResolutionBase::UpdateZAndA(Mat& Z, Mat& A, int x, int y, const vector<bool>& index, const vector<Mat>& frames, const int len)
 {
@@ -102,7 +76,7 @@ void SuperResolutionBase::UpdateZAndA(Mat& Z, Mat& A, int x, int y, const vector
 	merge(selectedFrames, mergedFrame);
 
 	Mat medianFrame(frames[0].rows, frames[0].cols, CV_32FC1);
-	MedianThirdDim(mergedFrame, medianFrame);
+	Utils::CalculatedMedian(mergedFrame, medianFrame);
 
 	for (auto r = x - 1; r < Z.rows-3; r += srFactor)
 	{
