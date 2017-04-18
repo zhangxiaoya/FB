@@ -30,7 +30,6 @@ protected:
 	Mat FastGradientBackProject(const Mat& hr, const Mat& mat, const Mat& mat1, const Mat& hpsf) const;
 	Mat GradientRegulization(const Mat& hr, double p, double alpha);
 	Mat FastRobustSR(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances, Mat hpsf);
-	Mat GetGaussianKernal() const;
 	void Process(Ptr<FrameSource>& frameSource, OutputArray output);
 	vector<Mat> NearestInterp2(const vector<Mat>& previousFrames, const vector<vector<double>>& currentDistances) const;
 

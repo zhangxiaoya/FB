@@ -284,32 +284,6 @@ Mat SuperResolutionBase::FastRobustSR(const vector<Mat>& interp_previous_frames,
 	return HR;
 }
 
-Mat SuperResolutionBase::GetGaussianKernal() const
-{
-
-	auto halfSize = (psfSize - 1) / 2;
-	Mat K(psfSize, psfSize, CV_32FC1);
-//	auto halfSize = (static_cast<int>(psfSigma) - 1) / 2;
-//	Mat K(static_cast<int>(psfSigma), static_cast<int>(psfSigma), CV_32FC1);
-
-	auto s2 = 2.0 * psfSigma * psfSigma;
-	for (auto i = (-halfSize); i <= halfSize; i++)
-	{
-		auto m = i + halfSize;
-		for (auto j = (-halfSize); j <= halfSize; j++)
-		{
-			auto n = j + halfSize;
-			float v = exp(-(1.0 * i * i + 1.0 * j * j) / s2);
-			K.ptr<float>(m)[n] = v;
-		}
-	}
-	auto all = sum(K);
-	Mat gaussK;
-	K.convertTo(gaussK, CV_32FC1, (1 / all[0]));
-
-	return gaussK;
-}
-
 vector<Mat> SuperResolutionBase::NearestInterp2(const vector<Mat>& previousFrames, const vector<vector<double>>& distances) const
 {
 	Mat X, Y;
@@ -346,7 +320,7 @@ void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray out
 	auto restDistances = CollectParms(currentDistances);
 	auto interpPreviousFrames = NearestInterp2(EmilyImageList, restDistances);
 
-	auto Hpsf = GetGaussianKernal();
+	auto Hpsf = Utils::GetGaussianKernal(psfSize, psfSigma);
 
 	auto Hr = FastRobustSR(interpPreviousFrames, currentDistances, Hpsf);
 
