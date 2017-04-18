@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <iostream>
 #include "ReadEmilyImageList.hpp"
+#include "../Utils/Utils.hpp"
 
 SuperResolutionBase::SuperResolutionBase(int bufferSize) : isFirstRun(false), bufferSize(bufferSize), srFactor(4), psfSize(3), psfSigma(1.0)
 {
@@ -59,14 +60,6 @@ void SuperResolutionBase::Init(Ptr<FrameSource>& frameSource)
 
 	frameSize = Size(currentFrame.rows, currentFrame.cols);
 	currentFrame.release();
-}
-
-int SuperResolutionBase::GetTrueCount(const vector<bool>& index)
-{
-	auto count = 0;
-	for (auto curElem : index)
-		curElem ? count++ : count;
-	return count;
 }
 
 float SuperResolutionBase::median(vector<float>& vector) const
@@ -142,7 +135,7 @@ void SuperResolutionBase::MedianAndShift(const vector<Mat>& interp_previous_fram
 					index.push_back(false);
 			}
 
-			auto len = GetTrueCount(index);
+			auto len = Utils::CalculateCount(index,true);
 			if (len > 0)
 			{
 				S.at<uchar>(x - srFactor, y - srFactor) = 1;

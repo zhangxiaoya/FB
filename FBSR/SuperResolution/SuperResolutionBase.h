@@ -22,7 +22,6 @@ public:
 
 protected:
 	void Init(Ptr<FrameSource>& frameSource);
-	int GetTrueCount(const vector<bool>& index);
 	float median(vector<float>& vector) const;
 	void MedianThirdDim(const Mat& merged_frame, Mat& median_frame);
 	void UpdateZAndA(Mat& mat, Mat& A, int x, int y, const vector<bool>& index, const vector<Mat>& mats, const int len);
