@@ -159,25 +159,6 @@ void SuperResolutionBase::MedianAndShift(const vector<Mat>& interp_previous_fram
 	copiedA.copyTo(A);
 }
 
-void SuperResolutionBase::MySign(const Mat& srcMat, Mat& destMat) const
-{
-	for (auto r = 0; r < srcMat.rows; ++r)
-	{
-		auto perLineSrc = srcMat.ptr<float>(r);
-		auto perLineDest = destMat.ptr<float>(r);
-
-		for (auto c = 0; c < srcMat.cols; ++c)
-		{
-			if (static_cast<int>(perLineSrc[c]) > 0)
-				perLineDest[c] = static_cast<float>(1);
-			else if (static_cast<int>(perLineSrc[c]) < 0)
-				perLineDest[c] = static_cast<float>(-1);
-			else
-				perLineDest[c] = static_cast<float>(0);
-		}
-	}
-}
-
 Mat SuperResolutionBase::FastGradientBackProject(const Mat& hr, const Mat& Z, const Mat& A, const Mat& hpsf) const
 {
 	Mat newZ;
@@ -186,7 +167,7 @@ Mat SuperResolutionBase::FastGradientBackProject(const Mat& hr, const Mat& Z, co
 	Mat resMul = A.mul(dis);
 
 	Mat Gsign(resMul.rows, resMul.cols, CV_32FC1);
-	MySign(resMul, Gsign);
+	Utils::Sign(resMul, Gsign);
 
 	Mat newhpsf;
 	flip(hpsf, newhpsf, -1);
@@ -214,7 +195,7 @@ Mat SuperResolutionBase::GradientRegulization(const Mat& hr, double p, double al
 			Mat dis = hr - selectMat;
 
 			Mat Xsign(dis.rows, dis.cols, CV_32FC1);
-			MySign(dis, Xsign);
+			Utils::Sign(dis, Xsign);
 
 			Mat paddedXsign;
 			copyMakeBorder(Xsign, paddedXsign, p, p, p, p, BORDER_CONSTANT, 0);

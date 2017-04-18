@@ -8,6 +8,7 @@ public:
 	static int CalculateCount(const vector<bool> value_list, const bool value = true);
 	static Mat GetGaussianKernal(const int kernel_size, const double sigma);
 	static void CalculatedMedian(const Mat& source_mat, Mat& median_mat);
+	static void Sign(const Mat& src_mat, Mat& dest_mat);
 
 private:
 	static float GetVectorMedian(vector<float>& value_list);
@@ -73,6 +74,25 @@ inline void Utils::CalculatedMedian(const Mat& source_mat, Mat& median_mat)
 				elementVector.push_back(*(srcRowData + c + i));
 
 			dstRowData[c] = GetVectorMedian(elementVector);
+		}
+	}
+}
+
+inline void Utils::Sign(const Mat& src_mat, Mat& dest_mat)
+{
+	for (auto r = 0; r < src_mat.rows; ++r)
+	{
+		auto perLineSrc = src_mat.ptr<float>(r);
+		auto perLineDest = dest_mat.ptr<float>(r);
+
+		for (auto c = 0; c < src_mat.cols; ++c)
+		{
+			if (static_cast<int>(perLineSrc[c]) > 0)
+				perLineDest[c] = static_cast<float>(1);
+			else if (static_cast<int>(perLineSrc[c]) < 0)
+				perLineDest[c] = static_cast<float>(-1);
+			else
+				perLineDest[c] = static_cast<float>(0);
 		}
 	}
 }
