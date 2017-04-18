@@ -12,6 +12,8 @@ public:
 	static void Meshgrid(const Range& xgv, const Range& ygv, Mat& X, Mat& Y);
 
 private:
+	static void GaussianDownSample(vector<Mat>::const_reference srcMat, vector<Mat>::reference destMat);
+
 	static void GaussianPyramid(Mat& img, vector<Mat>& pyramid, int levels);
 
 	static void IterativeLKOpticalFlow(Mat& Pyramid1, Mat& Pyramid2, Point topLeft, Point bottomRight, vector<double>& disc);

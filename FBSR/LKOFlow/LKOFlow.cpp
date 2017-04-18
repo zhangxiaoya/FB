@@ -48,18 +48,20 @@ void LKOFlow::GaussianPyramid(Mat& img, vector<Mat>& pyramid, int levels)
 {
 	img.copyTo(pyramid[0]);
 
-	auto scale = 2.0;
-	auto srcImg = img;
+//	auto scale = 2.0;
+//	auto srcImg = img;
 
 	for (auto i = 1; i < levels; ++i)
 	{
-		Mat desImg;
-		Size size(ceil(srcImg.cols / scale), ceil(srcImg.rows / scale));
+		GaussianDownSample(pyramid[i - 1], pyramid[i]);
 
-		pyrDown(srcImg, desImg, size);
-
-		desImg.copyTo(pyramid[i]);
-		srcImg = pyramid[i];
+		//		Mat desImg;
+		//		Size size(ceil(srcImg.cols / scale), ceil(srcImg.rows / scale));
+		//
+		//		pyrDown(srcImg, desImg, size);
+		//
+		//		desImg.copyTo(pyramid[i]);
+		//		srcImg = pyramid[i];
 	}
 }
 
@@ -102,8 +104,17 @@ void LKOFlow::ComputeLKFlowParms(Mat& img, Mat& Ht, Mat& G)
 	Sobel(img, SobelX, CV_32F, 1, 0);
 	Sobel(img, SobelY, CV_32F, 0, 1);
 
-	auto rectSobelX = SobelX(Rect(1, 1, SobelX.cols - 2, SobelX.rows - 2));
-	auto rectSobelY = SobelY(Rect(1, 1, SobelY.cols - 2, SobelY.rows - 2));
+	Mat kernelX = (Mat_<char>(3, 3) << 1 , 0 , -1 , 2 , 0 , -2 , 1 , 0 , -1);
+	Mat kernelY = kernelX.t();
+
+	Mat SSobelX, SSobelY;
+	//	filter2D(img, SSobelX, CV_32F, kernelX, Point(-1, -1), 0, cv::BORDER_REFLECT101);
+	filter2D(img, SSobelX, CV_32F, kernelX, Point(-1, -1), 0, cv::BORDER_CONSTANT);
+	//	filter2D(img, SSobelY, CV_32F, kernelY, Point(-1, -1), 0, cv::BORDER_REFLECT101);
+	filter2D(img, SSobelY, CV_32F, kernelY, Point(-1, -1), 0, cv::BORDER_CONSTANT);
+
+	auto rectSobelX = SSobelX(Rect(1, 1, SobelX.cols - 2, SobelX.rows - 2));
+	auto rectSobelY = SSobelY(Rect(1, 1, SobelY.cols - 2, SobelY.rows - 2));
 
 	Mat deepCopyedX, deepCopyedY;
 	rectSobelX.copyTo(deepCopyedX);
@@ -175,4 +186,31 @@ void LKOFlow::Meshgrid(const Range& xgv, const Range& ygv, Mat& X, Mat& Y)
 
 	cv::repeat(cv::Mat(t_x).t(), t_y.size(), 1, X);
 	cv::repeat(cv::Mat(t_y), 1, t_x.size(), Y);
+}
+
+void LKOFlow::GaussianDownSample(vector<Mat>::const_reference srcMat, vector<Mat>::reference destMat)
+{
+	Mat kernel = (Mat_<float>(1, 5) << 0.0625 , 0.2500 , 0.3750 , 0.2500 , 0.0625);
+	Mat kernelT = kernel.t();
+
+	Mat img, imgT;
+	filter2D(srcMat, img, CV_32F, kernel, Point(-1, -1), 0, BORDER_REFLECT);
+	filter2D(img, imgT, CV_32F, kernelT, Point(-1, -1), 0, BORDER_REFLECT);
+
+	Size size(ceil(srcMat.cols / 2.0), ceil(srcMat.rows / 2.0));
+	Mat tempImg(size, CV_32FC1);
+
+	for (auto r = 0; r < imgT.rows; r += 2)
+	{
+		auto rowSrcMat = imgT.ptr<float>(r);
+		auto rowDstmat = tempImg.ptr<float>(ceil(r / 2.0));
+
+		for (auto c = 0; c < imgT.cols; c += 2)
+		{
+			int idx = ceil(c / 2.0);
+			rowDstmat[idx] = rowSrcMat[c];
+		}
+	}
+
+	tempImg.copyTo(destMat);
 }
