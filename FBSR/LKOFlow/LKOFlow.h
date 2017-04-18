@@ -14,8 +14,6 @@ public:
 private:
 	static void GaussianPyramid(Mat& img, vector<Mat>& pyramid, int levels);
 
-	static double MyNorm(const Mat& mat);
-
 	static void IterativeLKOpticalFlow(Mat& Pyramid1, Mat& Pyramid2, Point topLeft, Point bottomRight, vector<double>& disc);
 
 	static void ComputeLKFlowParms(Mat& img, Mat& Ht, Mat& G);

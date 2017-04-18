@@ -63,15 +63,6 @@ void LKOFlow::GaussianPyramid(Mat& img, vector<Mat>& pyramid, int levels)
 	}
 }
 
-double LKOFlow::MyNorm(const Mat& mat)
-{
-	/*
-	* special use: Mat is a (2*1) vector, only get norm of this vector
-	*/
-	double sum = mat.at<float>(0, 0) * mat.at<float>(0, 0) + mat.at<float>(1, 0) * mat.at<float>(1, 0);
-	return sqrt(sum);
-}
-
 void LKOFlow::IterativeLKOpticalFlow(Mat& img1, Mat& img2, Point topLeft, Point bottomRight, vector<double>& distance)
 {
 	auto oldDistance = distance;
