@@ -139,9 +139,11 @@
     <ClInclude Include="LKOFlow\LKOFlow.h" />
     <ClInclude Include="PropsStruct.h" />
     <ClInclude Include="SuperResolution\FrameBuffer\FrameBuffer.h" />
+    <ClInclude Include="SuperResolution\ReadEmilyImageList.hpp" />
     <ClInclude Include="SuperResolution\SuperResolutionBase.h" />
     <ClInclude Include="SuperResolution\SuperResolutionBTVL1.h" />
     <ClInclude Include="SuperResolution\SuperResolutionFactory.h" />
+    <ClInclude Include="Utils\Utils.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

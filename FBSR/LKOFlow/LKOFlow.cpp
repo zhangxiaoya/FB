@@ -5,10 +5,6 @@
 
 vector<double> LKOFlow::PyramidalLKOpticalFlow(Mat& img1, Mat& img2, Rect& ROI)
 {
-	Mat image1, image2;
-	img1.convertTo(image1, CV_32F);
-	img2.convertTo(image2, CV_32F);
-
 	auto ROISize = ROI.size();
 
 	auto levels = min(6, static_cast<int>(floor(log2(min(ROISize.height, ROISize.width)) - 2)));
@@ -18,10 +14,10 @@ vector<double> LKOFlow::PyramidalLKOpticalFlow(Mat& img1, Mat& img2, Rect& ROI)
 	image1Pyramid.resize(levels);
 	image2Pyramid.resize(levels);
 
-	GaussianPyramid(image1, image1Pyramid, levels);
-	GaussianPyramid(image2, image2Pyramid, levels);
+	GaussianPyramid(img1, image1Pyramid, levels);
+	GaussianPyramid(img2, image2Pyramid, levels);
 
-	vector<double> distance = { 0.0,0.0 };
+	vector<double> distance = {0.0,0.0};
 
 	for (auto currentLevel = levels - 1; currentLevel >= 0; --currentLevel)
 	{
@@ -58,7 +54,7 @@ void LKOFlow::GaussianPyramid(Mat& img, vector<Mat>& pyramid, int levels)
 	for (auto i = 1; i < levels; ++i)
 	{
 		Mat desImg;
-		Size size(srcImg.cols / scale, srcImg.rows / scale);
+		Size size(ceil(srcImg.cols / scale), ceil(srcImg.rows / scale));
 
 		pyrDown(srcImg, desImg, size);
 
@@ -99,15 +95,11 @@ void LKOFlow::IterativeLKOpticalFlow(Mat& img1, Mat& img2, Point topLeft, Point 
 
 		Mat b = Ht * newIt;
 
-		Mat invertG;
-		invert(G, invertG);
+		Mat dc = G.inv() * b;
+		normDistrance = norm(dc);
 
-		Mat dc = invertG * b;
-
-		normDistrance = MyNorm(dc);
-
-		distance[0] += dc.at<float>(0, 0);
-		distance[1] += dc.at<float>(1, 0);
+		distance[1] += dc.at<float>(0, 0);
+		distance[0] += dc.at<float>(1, 0);
 
 		currentIterativeIndex++;
 	}
