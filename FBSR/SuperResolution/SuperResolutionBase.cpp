@@ -267,18 +267,27 @@ vector<Mat> SuperResolutionBase::NearestInterp2(const vector<Mat>& previousFrame
 
 void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray outputFrame)
 {
+	/************************************************************************************
+	 *
+	 * Set Prarameters for Test Case
+	 *
+	 ***********************************************************************************/
 	bufferSize = 53;
 	auto emilyImageCount = 53;
 	vector<Mat> EmilyImageList;
 	EmilyImageList.resize(emilyImageCount);
 	ReadEmilyImageList::ReadImageList(EmilyImageList, emilyImageCount);
 
+	/**********************************************************************************
+	 *
+	 * Read Image List and Register them
+	 *
+	 *********************************************************************************/
 	frameSize = Size(EmilyImageList[0].cols, EmilyImageList[0].rows);
 	auto registeredDistances = RegisterImages(EmilyImageList);
 
 	vector<vector<double>> roundedDistances(registeredDistances.size(), vector<double>(2, 0.0));
 	vector<vector<double>> restedDistances(registeredDistances.size(), vector<double>(2, 0.0));
-
 	ReCalculateDistances(registeredDistances, roundedDistances, restedDistances);
 
 	auto interpPreviousFrames = NearestInterp2(EmilyImageList, restedDistances);
