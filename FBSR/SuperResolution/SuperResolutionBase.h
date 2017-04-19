@@ -32,11 +32,11 @@ protected:
 
 private:
 	static vector<vector<double> > RegisterImages(vector<Mat>& frames);
-	vector<vector<double> > GetRestDistance(const vector<vector<double>>& distances, int srFactor) const;
+	void GetRestDistance(const vector<vector<double>>& roundedDistances, vector<vector<double>>& restedDistances, int srFactor) const;
 	void RoundAndScale(const vector<vector<double>>& registeredDistances, vector<vector<double>>& roundedDistances, int srFactor) const;
 
-	void ModAndAddFactor(vector<vector<double>>& distances, int srFactor) const;
-	vector<vector<double>> CollectParms(const vector<vector<double>>& registeredDistances, vector<vector<double>>& roundedDistances) const;
+	void ModAndAddFactor(vector<vector<double>>& roundedDistances, int srFactor) const;
+	void ReCalculateDistances(const vector<vector<double>>& registeredDistances, vector<vector<double>>& roundedDistances, vector<vector<double>>& restedDistances) const;
 
 private:
 	Ptr<FrameSource> frameSource;

@@ -277,10 +277,11 @@ void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray out
 	auto registeredDistances = RegisterImages(EmilyImageList);
 
 	vector<vector<double>> roundedDistances(registeredDistances.size(), vector<double>(2, 0.0));
+	vector<vector<double>> restedDistances(registeredDistances.size(), vector<double>(2, 0.0));
 
-	auto restDistances = CollectParms(registeredDistances, roundedDistances);
+	ReCalculateDistances(registeredDistances, roundedDistances, restedDistances);
 
-	auto interpPreviousFrames = NearestInterp2(EmilyImageList, restDistances);
+	auto interpPreviousFrames = NearestInterp2(EmilyImageList, restedDistances);
 
 	auto Hpsf = Utils::GetGaussianKernal(psfSize, psfSigma);
 
@@ -298,7 +299,7 @@ void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray out
 //	{
 //		auto previous_frames = frameBuffer->GetAll();
 //		auto currentDistances = RegisterImages(previous_frames);
-//		auto restDistances = CollectParms(currentDistances);
+//		auto restDistances = ReCalculateDistances(currentDistances);
 //		auto interpPreviousFrames = NearestInterp2(previous_frames, restDistances);
 //		auto Hpsf = GetGaussianKernal();
 //		auto Hr = FastRobustSR(interpPreviousFrames, currentDistances, Hpsf);
@@ -335,17 +336,11 @@ vector<vector<double>> SuperResolutionBase::RegisterImages(vector<Mat>& frames)
 	return result;
 }
 
-vector<vector<double>> SuperResolutionBase::GetRestDistance(const vector<vector<double>>& distances, int srFactor) const
+void SuperResolutionBase::GetRestDistance(const vector<vector<double>>& roundedDistances, vector<vector<double>>& restedDistances, int srFactor) const
 {
-	vector<vector<double>> result;
-	for (auto i = 0; i < distances.size(); ++i)
-	{
-		vector<double> distance;
-		for (auto j = 0; j < distances[0].size(); ++j)
-			distance.push_back(floor(distances[i][j] / srFactor));
-		result.push_back(distance);
-	}
-	return result;
+	for (auto i = 0; i < roundedDistances.size(); ++i)
+		for (auto j = 0; j < roundedDistances[0].size(); ++j)
+			restedDistances[i][j] = floor(roundedDistances[i][j] / srFactor);
 }
 
 void SuperResolutionBase::RoundAndScale(const vector<vector<double>>& registeredDistances, vector<vector<double>>& roundedDistances, int srFactor) const
@@ -355,20 +350,20 @@ void SuperResolutionBase::RoundAndScale(const vector<vector<double>>& registered
 			roundedDistances[i][j] = round(registeredDistances[i][j] * double(srFactor));
 }
 
-void SuperResolutionBase::ModAndAddFactor(vector<vector<double>>& distances, int srFactor) const
+void SuperResolutionBase::ModAndAddFactor(vector<vector<double>>& roundedDistances, int srFactor) const
 {
-	for (auto i = 0; i < distances.size(); ++i)
-		for (auto j = 0; j < distances[0].size(); ++j)
-			distances[i][j] = fmod(distances[i][j], static_cast<double>(srFactor)) + srFactor;
+	for (auto i = 0; i < roundedDistances.size(); ++i)
+		for (auto j = 0; j < roundedDistances[0].size(); ++j)
+			roundedDistances[i][j] = fmod(roundedDistances[i][j], static_cast<double>(srFactor)) + srFactor;
 }
 
-vector<vector<double>> SuperResolutionBase::CollectParms(const vector<vector<double>>& registeredDistances, vector<vector<double>>& roundedDistances) const
+void SuperResolutionBase::ReCalculateDistances(const vector<vector<double>>& registeredDistances, vector<vector<double>>& roundedDistances, vector<vector<double>>& restedDistances) const
 {
+	// NOTE: Cannot change order
+
 	RoundAndScale(registeredDistances, roundedDistances, srFactor);
 
-	auto restDistance = GetRestDistance(roundedDistances, srFactor);
+	GetRestDistance(roundedDistances, restedDistances, srFactor);
 
 	ModAndAddFactor(roundedDistances, srFactor);
-
-	return restDistance;
 }
