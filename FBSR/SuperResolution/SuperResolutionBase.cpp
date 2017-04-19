@@ -279,7 +279,7 @@ void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray out
 	vector<vector<int> > roundedDistances(registerDistances.size(), vector<int>(2, 0));
 	vector<vector<int> > restedDistances(registerDistances.size(), vector<int>(2, 0));
 
-	ReCalculateDistances(registerDistances, restedDistances, roundedDistances);
+	ReCalculateDistances(registerDistances, roundedDistances, restedDistances);
 
 	auto interpPreviousFrames = NearestInterp2(EmilyImageList, restedDistances);
 
@@ -336,11 +336,16 @@ vector<vector<double>> SuperResolutionBase::RegisterImages(vector<Mat>& frames)
 	return result;
 }
 
-void SuperResolutionBase::CalculateRestDistances(const vector<vector<int>>& roundedDistances, vector<vector<int>>& restedDistances, int srFactor) const
+void SuperResolutionBase::CalculateRestDistances(const vector<vector<int>>& distances, vector<vector<int>>& restedDistances, int srFactor) const
 {
-	for (auto i = 0; i < roundedDistances.size(); ++i)
-		for (auto j = 0; j < roundedDistances[0].size(); ++j)
-			restedDistances[i][j] = (floor(roundedDistances[i][j] / static_cast<float>(srFactor)));
+	for (auto i = 0; i < distances.size(); ++i)
+	{
+		vector<int> distance;
+		for (auto j = 0; j < distances[0].size(); ++j)
+			distance.push_back(floor(distances[i][j] / static_cast<float>(srFactor)));
+
+		restedDistances.push_back(distance);
+	}
 }
 
 void SuperResolutionBase::RoundDistancesAndScale(const vector<vector<double>>& registedDistances, vector<vector<int>>& roundedDistances, int srFactor) const
@@ -350,11 +355,11 @@ void SuperResolutionBase::RoundDistancesAndScale(const vector<vector<double>>& r
 			roundedDistances[i][j] = round(registedDistances[i][j] * double(srFactor));
 }
 
-void SuperResolutionBase::ModDistancesAndAddFactor(vector<vector<int>>& roundedDistances, int srFactor) const
+void SuperResolutionBase::ModDistancesAndAddFactor(vector<vector<int>>& distances, int srFactor) const
 {
-	for (auto i = 0; i < roundedDistances.size(); ++i)
-		for (auto j = 0; j < roundedDistances[0].size(); ++j)
-			roundedDistances[i][j] = (roundedDistances[i][j] % srFactor + srFactor) % srFactor + srFactor;
+	for (auto i = 0; i < distances.size(); ++i)
+		for (auto j = 0; j < distances[0].size(); ++j)
+			distances[i][j] = (distances[i][j] % srFactor + srFactor) % srFactor + srFactor;
 }
 
 void SuperResolutionBase::ReCalculateDistances(const vector<vector<double>>& registedDistances, vector<vector<int>>& restedDistances, vector<vector<int>>& roundedDistances) const
