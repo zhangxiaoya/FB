@@ -163,9 +163,9 @@ void LKOFlow::Meshgrid(const float lefTopX, const float rightBottomX, const floa
 {
 	vector<float> t_x, t_y;
 
-	for (auto i = lefTopX; i <= rightBottomX; i++)
+	for (auto i = lefTopX; (i - rightBottomX) < 0.001; i++)
 		t_x.push_back(i);
-	for (auto j = lefTopY; j <= rightBottomY; j++)
+	for (auto j = lefTopY; (j - rightBottomY) < 0.001; j++)
 		t_y.push_back(j);
 
 	cv::repeat(cv::Mat(t_x).t(), t_y.size(), 1, X);

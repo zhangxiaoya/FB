@@ -284,6 +284,10 @@ void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray out
 
 	Mat UcharHr;
 	Hr.convertTo(UcharHr, CV_8UC1);
+	imshow("Test", UcharHr);
+	waitKey(0);
+
+	destroyAllWindows();
 
 //	Mat currentFrame;
 //	while (frameBuffer->CurrentFrame().data)
