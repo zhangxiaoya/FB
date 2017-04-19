@@ -42,11 +42,11 @@ protected:
 private:
 	static vector<vector<double> > RegisterImages(vector<Mat>& frames);
 
-	void CalculateRestDistances(const vector<vector<int>>& distances, vector<vector<int>>& restedDistances, int srFactor) const;
+	void CalculateRestDistances(const vector<vector<int>>& roundedDistances, vector<vector<int>>& restedDistances, int srFactor) const;
 
 	void RoundDistancesAndScale(const vector<vector<double>>& registedDistances, vector<vector<int>>& roundedDistances, int srFactor) const;
 
-	void ModDistancesAndAddFactor(vector<vector<int>>& distances, int srFactor) const;
+	void ModDistancesAndAddFactor(vector<vector<int>>& roundedDistances, int srFactor) const;
 
 	void ReCalculateDistances(const vector<vector<double>>& registedDistances, vector<vector<int>>& restedDistances, vector<vector<int>>& roundedDistances) const;
 
