@@ -128,7 +128,7 @@ void SuperResolutionBase::MedianAndShift(const vector<Mat>& interp_previous_fram
 		auto perRow = noneZeroMapOfMarkMat.ptr<uchar>(r);
 		for (auto c = 0; c < noneZeroMapOfMarkMat.cols; ++c)
 		{
-			if (static_cast<int>(perRow[c]) != 0)
+			if (static_cast<int>(perRow[c]) == 0)
 			{
 				X.push_back(c);
 				Y.push_back(r);
@@ -151,8 +151,11 @@ void SuperResolutionBase::MedianAndShift(const vector<Mat>& interp_previous_fram
 				auto rowOfMatZ = Z.ptr<float>(r);
 				auto rowOfMedianBlurMatOfMatZ = meidianBlurMatOfMatZ.ptr<float>(r);
 
-				for (auto c = X[i] + srFactor - 1; c < colCount; c += srFactor)
-					rowOfMatZ[c] = rowOfMedianBlurMatOfMatZ[c];
+				for (auto c = X[i] + srFactor - 0; c < colCount; c += srFactor)
+				{
+					auto x = rowOfMedianBlurMatOfMatZ[c];
+					rowOfMatZ[c] = x;
+				}
 			}
 		}
 	}
