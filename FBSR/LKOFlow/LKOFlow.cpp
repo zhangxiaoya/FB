@@ -49,21 +49,8 @@ void LKOFlow::GaussianPyramid(Mat& img, vector<Mat>& pyramid, int levels)
 {
 	img.copyTo(pyramid[0]);
 
-//	auto scale = 2.0;
-//	auto srcImg = img;
-
 	for (auto i = 1; i < levels; ++i)
-	{
 		GaussianDownSample(pyramid[i - 1], pyramid[i]);
-
-		//		Mat desImg;
-		//		Size size(ceil(srcImg.cols / scale), ceil(srcImg.rows / scale));
-		//
-		//		pyrDown(srcImg, desImg, size);
-		//
-		//		desImg.copyTo(pyramid[i]);
-		//		srcImg = pyramid[i];
-	}
 }
 
 void LKOFlow::IterativeLKOpticalFlow(Mat& img1, Mat& img2, Point topLeft, Point bottomRight, vector<double>& distance)
@@ -124,9 +111,6 @@ void LKOFlow::ComputeLKFlowParms(Mat& img, Mat& Ht, Mat& G)
 	auto reshapedX = Utils::ReshapedMatColumnFirst(deepCopyedX);
 	auto reshapedY = Utils::ReshapedMatColumnFirst(deepCopyedY);
 
-//	auto reshapedX = deepCopyedX.reshape(0, deepCopyedX.rows * deepCopyedX.cols);
-//	auto reshapedY = deepCopyedY.reshape(0, deepCopyedY.rows * deepCopyedY.cols);
-
 	auto H = MergeTwoCols(reshapedX, reshapedY);
 	Ht = H.t();
 
@@ -167,25 +151,21 @@ Mat LKOFlow::ResampleImg(Mat& img, Rect& rect, vector<double> disc)
 	auto leftTop = rect.tl();
 	auto bottomeRight = rect.br();
 
-	Meshgrid(Range(leftTop.x, bottomeRight.x - 1) - disc[0], Range(leftTop.y, bottomeRight.y - 1) - disc[1], X, Y);
-
-	Mat formatX, formatY;
-	X.convertTo(formatX, CV_32FC1);
-	Y.convertTo(formatY, CV_32FC1);
+	Meshgrid(leftTop.x - disc[0], bottomeRight.x - 1 - disc[0], leftTop.y - disc[1], bottomeRight.y - 1 - disc[1], X, Y);
 
 	Mat result;
-	remap(img, result, formatX, formatY, INTER_LINEAR);
+	remap(img, result, X, Y, INTER_LINEAR);
 
 	return result;
 }
 
-void LKOFlow::Meshgrid(const Range& xgv, const Range& ygv, Mat& X, Mat& Y)
+void LKOFlow::Meshgrid(const float lefTopX, const float rightBottomX, const float lefTopY, const float rightBottomY, Mat& X, Mat& Y)
 {
-	vector<int> t_x, t_y;
+	vector<float> t_x, t_y;
 
-	for (auto i = xgv.start; i <= xgv.end; i++)
+	for (auto i = lefTopX; (i - rightBottomX) < 0.001; i++)
 		t_x.push_back(i);
-	for (auto j = ygv.start; j <= ygv.end; j++)
+	for (auto j = lefTopY; (j - rightBottomY) < 0.001; j++)
 		t_y.push_back(j);
 
 	cv::repeat(cv::Mat(t_x).t(), t_y.size(), 1, X);

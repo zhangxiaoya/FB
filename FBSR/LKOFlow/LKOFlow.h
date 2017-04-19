@@ -9,7 +9,8 @@ class LKOFlow
 {
 public:
 	static vector<double> PyramidalLKOpticalFlow(Mat& img1, Mat& img2, Rect& ROI);
-	static void Meshgrid(const Range& xgv, const Range& ygv, Mat& X, Mat& Y);
+
+	static void LKOFlow::Meshgrid(const float lefTopX, const float rightBottomX, const float lefTopY, const float rightBottomY, Mat& X, Mat& Y);
 
 private:
 	static void GaussianDownSample(vector<Mat>::const_reference srcMat, vector<Mat>::reference destMat);

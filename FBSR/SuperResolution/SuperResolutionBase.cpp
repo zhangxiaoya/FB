@@ -249,7 +249,7 @@ Mat SuperResolutionBase::FastRobustSR(const vector<Mat>& interp_previous_frames,
 vector<Mat> SuperResolutionBase::NearestInterp2(const vector<Mat>& previousFrames, const vector<vector<double>>& distances) const
 {
 	Mat X, Y;
-	LKOFlow::Meshgrid(Range(0, frameSize.width - 1), Range(0, frameSize.height - 1), X, Y);
+	LKOFlow::Meshgrid(0, frameSize.width - 1, 0, frameSize.height - 1, X, Y);
 
 	vector<Mat> result;
 	result.resize(previousFrames.size());
@@ -259,12 +259,8 @@ vector<Mat> SuperResolutionBase::NearestInterp2(const vector<Mat>& previousFrame
 		Mat shiftX = X + distances[i][0];
 		Mat shiftY = Y + distances[i][0];
 
-		Mat formatX, formatY;
-		shiftX.convertTo(formatX, CV_32FC1);
-		shiftY.convertTo(formatY, CV_32FC1);
-
 		auto currentFrame = previousFrames[i];
-		remap(currentFrame, result[i], formatX, formatY, INTER_NEAREST);
+		remap(currentFrame, result[i], shiftX, shiftY, INTER_NEAREST);
 	}
 	return result;
 }
@@ -288,6 +284,10 @@ void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray out
 
 	Mat UcharHr;
 	Hr.convertTo(UcharHr, CV_8UC1);
+	imshow("Test", UcharHr);
+	waitKey(0);
+
+	destroyAllWindows();
 
 //	Mat currentFrame;
 //	while (frameBuffer->CurrentFrame().data)
