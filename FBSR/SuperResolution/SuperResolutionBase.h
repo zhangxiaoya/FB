@@ -42,13 +42,13 @@ protected:
 private:
 	static vector<vector<double> > RegisterImages(vector<Mat>& frames);
 
-	void CalculateRestDistances(const vector<vector<int>>& distances, vector<vector<int>>& restedDistances, int srFactor) const;
+	void GetRestDistance(const vector<vector<int>>& distances, vector<vector<int>>& restedDistances, int srFactor) const;
 
-	void RoundDistancesAndScale(const vector<vector<double>>& registedDistances, vector<vector<int>>& roundedDistances, int srFactor) const;
+	void RoundAndScale(const vector<vector<double>>& distances, vector<vector<int>>& roundedDistance, int srFactor) const;
 
-	void ModDistancesAndAddFactor(vector<vector<int>>& distances, int srFactor) const;
+	void ModAndAddFactor(vector<vector<int>>& distances, int srFactor) const;
 
-	void ReCalculateDistances(const vector<vector<double>>& registedDistances, vector<vector<int>>& restedDistances, vector<vector<int>>& roundedDistances) const;
+	void CollectParms(const vector<vector<double>>& distances, vector<vector<int>>& restedDistances, vector<vector<int>>& roundedDistances) const;
 
 private:
 	Ptr<FrameSource> frameSource;
