@@ -49,21 +49,8 @@ void LKOFlow::GaussianPyramid(Mat& img, vector<Mat>& pyramid, int levels)
 {
 	img.copyTo(pyramid[0]);
 
-//	auto scale = 2.0;
-//	auto srcImg = img;
-
 	for (auto i = 1; i < levels; ++i)
-	{
 		GaussianDownSample(pyramid[i - 1], pyramid[i]);
-
-		//		Mat desImg;
-		//		Size size(ceil(srcImg.cols / scale), ceil(srcImg.rows / scale));
-		//
-		//		pyrDown(srcImg, desImg, size);
-		//
-		//		desImg.copyTo(pyramid[i]);
-		//		srcImg = pyramid[i];
-	}
 }
 
 void LKOFlow::IterativeLKOpticalFlow(Mat& img1, Mat& img2, Point topLeft, Point bottomRight, vector<double>& distance)
@@ -123,9 +110,6 @@ void LKOFlow::ComputeLKFlowParms(Mat& img, Mat& Ht, Mat& G)
 
 	auto reshapedX = Utils::ReshapedMatColumnFirst(deepCopyedX);
 	auto reshapedY = Utils::ReshapedMatColumnFirst(deepCopyedY);
-
-//	auto reshapedX = deepCopyedX.reshape(0, deepCopyedX.rows * deepCopyedX.cols);
-//	auto reshapedY = deepCopyedY.reshape(0, deepCopyedY.rows * deepCopyedY.cols);
 
 	auto H = MergeTwoCols(reshapedX, reshapedY);
 	Ht = H.t();
