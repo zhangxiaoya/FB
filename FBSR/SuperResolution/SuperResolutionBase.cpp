@@ -91,7 +91,7 @@ void SuperResolutionBase::UpdateZAndA(Mat& Z, Mat& A, int x, int y, const vector
 	}
 }
 
-void SuperResolutionBase::MedianAndShift(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances, const Size& new_size, Mat& Z, Mat& A) const
+void SuperResolutionBase::MedianAndShift(const vector<Mat>& interp_previous_frames, const vector<vector<int>>& current_distances, const Size& new_size, Mat& Z, Mat& A) const
 {
 	Z = Mat::zeros(new_size, CV_32FC1);
 	A = Mat::ones(new_size, CV_32FC1);
@@ -221,7 +221,7 @@ Mat SuperResolutionBase::GradientRegulization(const Mat& Xn, const double P, con
 	return G;
 }
 
-Mat SuperResolutionBase::FastRobustSR(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances, Mat hpsf)
+Mat SuperResolutionBase::FastRobustSR(const vector<Mat>& interp_previous_frames, const vector<vector<int>>& current_distances, Mat hpsf)
 {
 	Mat Z, A;
 	Size newSize((frameSize.width + 1) * srFactor - 1, (frameSize.height + 1) * srFactor - 1);
@@ -257,7 +257,7 @@ vector<Mat> SuperResolutionBase::NearestInterp2(const vector<Mat>& previousFrame
 	for (auto i = 0; i < distances.size(); ++i)
 	{
 		Mat shiftX = X + distances[i][0];
-		Mat shiftY = Y + distances[i][0];
+		Mat shiftY = Y + distances[i][1];
 
 		auto currentFrame = previousFrames[i];
 		remap(currentFrame, result[i], shiftX, shiftY, INTER_NEAREST);
@@ -275,12 +275,16 @@ void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray out
 
 	frameSize = Size(EmilyImageList[0].cols, EmilyImageList[0].rows);
 	auto currentDistances = RegisterImages(EmilyImageList);
-	auto restDistances = CollectParms(currentDistances);
+
+	vector<vector<int> > roundedDistance(currentDistances.size(), vector<int>(2, 0));
+
+	auto restDistances = CollectParms(currentDistances, roundedDistance);
+
 	auto interpPreviousFrames = NearestInterp2(EmilyImageList, restDistances);
 
 	auto Hpsf = Utils::GetGaussianKernal(psfSize, psfSigma);
 
-	auto Hr = FastRobustSR(interpPreviousFrames, currentDistances, Hpsf);
+	auto Hr = FastRobustSR(interpPreviousFrames, roundedDistance, Hpsf);
 
 	Mat UcharHr;
 	Hr.convertTo(UcharHr, CV_8UC1);
@@ -331,38 +335,41 @@ vector<vector<double>> SuperResolutionBase::RegisterImages(vector<Mat>& frames)
 	return result;
 }
 
-vector<vector<double>> SuperResolutionBase::GetRestDistance(const vector<vector<double>>& distances, int srFactor) const
+vector<vector<double>> SuperResolutionBase::GetRestDistance(const vector<vector<int>>& distances, int srFactor) const
 {
 	vector<vector<double>> result;
 	for (auto i = 0; i < distances.size(); ++i)
 	{
 		vector<double> distance;
 		for (auto j = 0; j < distances[0].size(); ++j)
-			distance.push_back(floor(distances[i][j] / srFactor));
+			distance.push_back(floor(distances[i][j] / static_cast<float>(srFactor)));
+
 		result.push_back(distance);
 	}
 	return result;
 }
 
-void SuperResolutionBase::RoundAndScale(vector<vector<double>>& distances, int srFactor) const
+void SuperResolutionBase::RoundAndScale(const vector<vector<double>>& distances, vector<vector<int>>& roundedDistance, int srFactor) const
 {
 	for (auto i = 0; i < distances.size(); ++i)
 		for (auto j = 0; j < distances[0].size(); ++j)
-			distances[i][j] = round(distances[i][j] * double(srFactor));
+			roundedDistance[i][j] = round(distances[i][j] * double(srFactor));
 }
 
-void SuperResolutionBase::ModAndAddFactor(vector<vector<double>>& distances, int srFactor) const
+void SuperResolutionBase::ModAndAddFactor(vector<vector<int>>& distances, int srFactor) const
 {
 	for (auto i = 0; i < distances.size(); ++i)
 		for (auto j = 0; j < distances[0].size(); ++j)
-			distances[i][j] = fmod(distances[i][j], static_cast<double>(srFactor)) + srFactor;
+			distances[i][j] = (distances[i][j] % srFactor + srFactor) % srFactor + srFactor;
 }
 
-vector<vector<double>> SuperResolutionBase::CollectParms(vector<vector<double>>& distances) const
+vector<vector<double>> SuperResolutionBase::CollectParms(const vector<vector<double>>& distances, vector<vector<int>>& roundedDistance) const
 {
-	RoundAndScale(distances, srFactor);
-	auto restDistance = GetRestDistance(distances, srFactor);
-	ModAndAddFactor(distances, srFactor);
+	RoundAndScale(distances, roundedDistance, srFactor);
+
+	auto restDistance = GetRestDistance(roundedDistance, srFactor);
+
+	ModAndAddFactor(roundedDistance, srFactor);
 
 	return restDistance;
 }
