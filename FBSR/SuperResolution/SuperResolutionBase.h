@@ -37,18 +37,18 @@ protected:
 
 	void Process(Ptr<FrameSource>& frameSource, OutputArray output);
 
-	vector<Mat> NearestInterp2(const vector<Mat>& previousFrames, const vector<vector<int>>& currentDistances) const;
+	vector<Mat> NearestInterp2(const vector<Mat>& previousFrames, const vector<vector<double>>& currentDistances) const;
 
 private:
 	static vector<vector<double> > RegisterImages(vector<Mat>& frames);
 
-	void GetRestDistance(const vector<vector<int>>& distances, vector<vector<int>>& restedDistances, int srFactor) const;
+	vector<vector<double> > GetRestDistance(const vector<vector<int>>& distances, int srFactor) const;
 
 	void RoundAndScale(const vector<vector<double>>& distances, vector<vector<int>>& roundedDistance, int srFactor) const;
 
 	void ModAndAddFactor(vector<vector<int>>& distances, int srFactor) const;
 
-	void CollectParms(const vector<vector<double>>& distances, vector<vector<int>>& restedDistances, vector<vector<int>>& roundedDistances) const;
+	vector<vector<double>> CollectParms(const vector<vector<double>>& distances, vector<vector<int>>& roundedDistance) const;
 
 private:
 	Ptr<FrameSource> frameSource;
