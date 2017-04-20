@@ -259,11 +259,76 @@ vector<Mat> SuperResolutionBase::NearestInterp2(const vector<Mat>& previousFrame
 
 	for (auto i = 0; i < distances.size(); ++i)
 	{
-		Mat shiftX = X + distances[i][0];
-		Mat shiftY = Y + distances[i][1];
-
 		auto currentFrame = previousFrames[i];
-		remap(currentFrame, result[i], shiftX, shiftY, INTER_NEAREST);
+		remap(currentFrame, result[i], X, Y, INTER_NEAREST);
+
+		if (distances[i][0] < 0.0)
+		{
+			auto srcSubFrameSharedMemory = result[i](Rect(static_cast<int>(-distances[i][0]), 0, static_cast<int>(result[i].cols + distances[i][0]), result[i].rows));
+			Mat tempSubFrame;
+			srcSubFrameSharedMemory.copyTo(tempSubFrame);
+			auto destSubFrameSharedMemory = result[i](Rect(0, 0, static_cast<int>(result[i].cols + distances[i][0]), result[i].rows));
+			tempSubFrame.copyTo(destSubFrameSharedMemory);
+
+			auto totalCols = result[i].cols;
+			for (auto r = 0; r < result[i].rows; r++)
+			{
+				auto rowOfResult = result[i].ptr<float>(r);
+				for (auto j = distances[i][0]; j < 0.0; ++j)
+					rowOfResult[static_cast<int>((totalCols + j))] = -1;
+			}
+		}
+
+		if (distances[i][1] < 0.0)
+		{
+			auto srcSubFrameSharedMemory = result[i](Rect(0, static_cast<int>(-distances[i][1]), result[i].cols, static_cast<int>(result[i].rows) + distances[i][1]));
+			Mat tempSubFrame;
+			srcSubFrameSharedMemory.copyTo(tempSubFrame);
+			auto destSubFrameSharedMemory = result[i](Rect(0, 0, result[i].cols, static_cast<int>(result[i].rows + distances[i][1])));
+			tempSubFrame.copyTo(destSubFrameSharedMemory);
+
+			auto totalRows = result[i].rows;
+			for (auto j = distances[i][1]; j < 0.0; ++j)
+			{
+				auto rowOfResult = result[i].ptr<float>(static_cast<int>(totalRows + j));
+				for (auto c = 0; c < result[i].cols; ++c)
+					rowOfResult[c] = -1;
+			}
+		}
+
+		if (distances[i][0] > 0.0)
+		{
+			auto srcSubFrameSharedMemory = result[i](Rect(0, 0, static_cast<int>(result[i].cols - distances[i][0]), result[i].rows));
+			Mat tempSubFrame;
+			srcSubFrameSharedMemory.copyTo(tempSubFrame);
+			auto destSubFrameSharedmemory = result[i](Rect(static_cast<int>(distances[i][0]), 0, static_cast<int>(result[i].cols - distances[i][0]), result[i].rows));
+			tempSubFrame.copyTo(destSubFrameSharedmemory);
+
+			auto totalRows = result[i].rows;
+			for (auto r = 0; r < totalRows; ++r)
+			{
+				auto rowOfResult = result[i].ptr<float>(r);
+				for (auto c = 0; c < static_cast<int>(distances[i][0]); ++c)
+					rowOfResult[c] = -1;
+			}
+		}
+
+		if (distances[i][1] > 0.0)
+		{
+			auto srcSubFrameSharedMemory = result[i](Rect(0, 0, result[i].cols, static_cast<int>(result[i].rows - distances[i][1])));
+			Mat tempSubFrame;
+			srcSubFrameSharedMemory.copyTo(tempSubFrame);
+			auto destSubFrameSharedmemory = result[i](Rect(0, static_cast<int>(distances[i][1]), result[i].cols, static_cast<int>(result[i].rows) - distances[i][1]));
+			tempSubFrame.copyTo(destSubFrameSharedmemory);
+
+			auto totalCols = result[i].cols;
+			for (auto r = 0; r < static_cast<int>(distances[i][1]); ++r)
+			{
+				auto rowOfResult = result[i].ptr<float>(r);
+				for (auto c = 0; c < totalCols; ++c)
+					rowOfResult[c] = -1;
+			}
+		}
 	}
 	return result;
 }
