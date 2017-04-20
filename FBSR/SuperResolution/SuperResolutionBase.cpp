@@ -360,6 +360,8 @@ void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray out
 
 	auto interpPreviousFrames = NearestInterp2(EmilyImageList, restedDistances);
 
+	auto warpedFrames = Utils::WarpFrames(interpPreviousFrames, 2);
+
 	auto Hpsf = Utils::GetGaussianKernal(psfSize, psfSigma);
 
 	auto Hr = FastRobustSR(interpPreviousFrames, roundedDistances, Hpsf);

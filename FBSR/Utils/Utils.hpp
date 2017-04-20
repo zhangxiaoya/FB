@@ -6,10 +6,16 @@ class Utils
 {
 public:
 	static int CalculateCount(const vector<bool> value_list, const bool value = true);
+
 	static Mat GetGaussianKernal(const int kernel_size, const double sigma);
+
 	static void CalculatedMedian(const Mat& source_mat, Mat& median_mat);
+
 	static void Sign(const Mat& src_mat, Mat& dest_mat);
+
 	static Mat ReshapedMatColumnFirst(const Mat& srcMat);
+
+	static vector<Mat> WarpFrames(const vector<Mat>& interp_previous_frames, int borderSize);
 
 private:
 	static float GetVectorMedian(vector<float>& value_list);
@@ -113,4 +119,20 @@ inline Mat Utils::ReshapedMatColumnFirst(const Mat& srcMat)
 		}
 	}
 	return reshapedMat;
+}
+
+inline vector<Mat> Utils::WarpFrames(const vector<Mat>& srcFrames, int borderSize)
+{
+	vector<Mat> warpedResult;
+	warpedResult.resize(srcFrames.size());
+
+	auto originalWidth = srcFrames[0].cols;
+	auto originalHeight = srcFrames[0].rows;
+
+	for (auto i = 0; i<srcFrames.size(); ++i)
+	{
+		auto subFrameSharedMemory = srcFrames[i](Rect(borderSize, borderSize, originalWidth - 2 * borderSize, originalHeight - 2 * borderSize));
+		subFrameSharedMemory.copyTo(warpedResult[i]);
+	}
+	return warpedResult;
 }
