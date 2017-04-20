@@ -77,17 +77,19 @@ void SuperResolutionBase::UpdateZAndA(Mat& Z, Mat& A, int x, int y, const vector
 	Mat medianFrame(frames[0].rows, frames[0].cols, CV_32FC1);
 	Utils::CalculatedMedian(mergedFrame, medianFrame);
 
-	for (auto r = x - 1; r < Z.rows-3; r += srFactor)
+	for (auto r1 = y - 1, r2 = 0; r1 < Z.rows; r1 += srFactor)
 	{
-		auto rowOfMatZ = Z.ptr<float>(r);
-		auto rowOfMatA = A.ptr<float>(r);
-		auto rowOfMedianFrame = medianFrame.ptr<float>(r / srFactor);
+		auto rowOfMatZ = Z.ptr<float>(r1);
+		auto rowOfMatA = A.ptr<float>(r1);
+		auto rowOfMedianFrame = medianFrame.ptr<float>(r2);
 
-		for (auto c = y - 1; c < Z.cols-3; c += srFactor)
+		for (auto c1 = x - 1, c2 = 0; c1 < Z.cols; c1 += srFactor)
 		{
-			rowOfMatZ[c] = rowOfMedianFrame[c / srFactor];
-			rowOfMatA[c] = static_cast<float>(len);
+			rowOfMatZ[c1] = rowOfMedianFrame[c2];
+			rowOfMatA[c1] = static_cast<float>(len);
+			++c2;
 		}
+		++r2;
 	}
 }
 
@@ -227,7 +229,10 @@ Mat SuperResolutionBase::GradientRegulization(const Mat& Xn, const double P, con
 Mat SuperResolutionBase::FastRobustSR(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances, Mat hpsf)
 {
 	Mat Z, A;
-	Size newSize((frameSize.width + 1) * srFactor - 1, (frameSize.height + 1) * srFactor - 1);
+	auto originalWidth = interp_previous_frames[0].cols;
+	auto originalHeight = interp_previous_frames[0].rows;
+	Size newSize((originalWidth + 1) * srFactor - 1, (originalHeight + 1) * srFactor - 1);
+
 	MedianAndShift(interp_previous_frames, current_distances, newSize, Z, A);
 
 	Mat HR;
@@ -259,11 +264,76 @@ vector<Mat> SuperResolutionBase::NearestInterp2(const vector<Mat>& previousFrame
 
 	for (auto i = 0; i < distances.size(); ++i)
 	{
-		Mat shiftX = X + distances[i][0];
-		Mat shiftY = Y + distances[i][0];
-
 		auto currentFrame = previousFrames[i];
-		remap(currentFrame, result[i], shiftX, shiftY, INTER_NEAREST);
+		remap(currentFrame, result[i], X, Y, INTER_NEAREST);
+
+		if (distances[i][0] < 0.0)
+		{
+			auto srcSubFrameSharedMemory = result[i](Rect(static_cast<int>(-distances[i][0]), 0, static_cast<int>(result[i].cols + distances[i][0]), result[i].rows));
+			Mat tempSubFrame;
+			srcSubFrameSharedMemory.copyTo(tempSubFrame);
+			auto destSubFrameSharedMemory = result[i](Rect(0, 0, static_cast<int>(result[i].cols + distances[i][0]), result[i].rows));
+			tempSubFrame.copyTo(destSubFrameSharedMemory);
+
+			auto totalCols = result[i].cols;
+			for (auto r = 0; r < result[i].rows; r++)
+			{
+				auto rowOfResult = result[i].ptr<float>(r);
+				for (auto j = distances[i][0]; j < 0.0; ++j)
+					rowOfResult[static_cast<int>((totalCols + j))] = -1;
+			}
+		}
+
+		if (distances[i][1] < 0.0)
+		{
+			auto srcSubFrameSharedMemory = result[i](Rect(0, static_cast<int>(-distances[i][1]), result[i].cols, static_cast<int>(result[i].rows) + distances[i][1]));
+			Mat tempSubFrame;
+			srcSubFrameSharedMemory.copyTo(tempSubFrame);
+			auto destSubFrameSharedMemory = result[i](Rect(0, 0, result[i].cols, static_cast<int>(result[i].rows + distances[i][1])));
+			tempSubFrame.copyTo(destSubFrameSharedMemory);
+
+			auto totalRows = result[i].rows;
+			for (auto j = distances[i][1]; j < 0.0; ++j)
+			{
+				auto rowOfResult = result[i].ptr<float>(static_cast<int>(totalRows + j));
+				for (auto c = 0; c < result[i].cols; ++c)
+					rowOfResult[c] = -1;
+			}
+		}
+
+		if (distances[i][0] > 0.0)
+		{
+			auto srcSubFrameSharedMemory = result[i](Rect(0, 0, static_cast<int>(result[i].cols - distances[i][0]), result[i].rows));
+			Mat tempSubFrame;
+			srcSubFrameSharedMemory.copyTo(tempSubFrame);
+			auto destSubFrameSharedmemory = result[i](Rect(static_cast<int>(distances[i][0]), 0, static_cast<int>(result[i].cols - distances[i][0]), result[i].rows));
+			tempSubFrame.copyTo(destSubFrameSharedmemory);
+
+			auto totalRows = result[i].rows;
+			for (auto r = 0; r < totalRows; ++r)
+			{
+				auto rowOfResult = result[i].ptr<float>(r);
+				for (auto c = 0; c < static_cast<int>(distances[i][0]); ++c)
+					rowOfResult[c] = -1;
+			}
+		}
+
+		if (distances[i][1] > 0.0)
+		{
+			auto srcSubFrameSharedMemory = result[i](Rect(0, 0, result[i].cols, static_cast<int>(result[i].rows - distances[i][1])));
+			Mat tempSubFrame;
+			srcSubFrameSharedMemory.copyTo(tempSubFrame);
+			auto destSubFrameSharedmemory = result[i](Rect(0, static_cast<int>(distances[i][1]), result[i].cols, static_cast<int>(result[i].rows) - distances[i][1]));
+			tempSubFrame.copyTo(destSubFrameSharedmemory);
+
+			auto totalCols = result[i].cols;
+			for (auto r = 0; r < static_cast<int>(distances[i][1]); ++r)
+			{
+				auto rowOfResult = result[i].ptr<float>(r);
+				for (auto c = 0; c < totalCols; ++c)
+					rowOfResult[c] = -1;
+			}
+		}
 	}
 	return result;
 }
@@ -295,9 +365,11 @@ void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray out
 
 	auto interpPreviousFrames = NearestInterp2(EmilyImageList, restedDistances);
 
+	auto warpedFrames = Utils::WarpFrames(interpPreviousFrames, 2);
+
 	auto Hpsf = Utils::GetGaussianKernal(psfSize, psfSigma);
 
-	auto Hr = FastRobustSR(interpPreviousFrames, roundedDistances, Hpsf);
+	auto Hr = FastRobustSR(warpedFrames, roundedDistances, Hpsf);
 
 	Mat UcharHr;
 	Hr.convertTo(UcharHr, CV_8UC1);
@@ -366,7 +438,7 @@ void SuperResolutionBase::ModAndAddFactor(vector<vector<double>>& roundedDistanc
 {
 	for (auto i = 0; i < roundedDistances.size(); ++i)
 		for (auto j = 0; j < roundedDistances[0].size(); ++j)
-			roundedDistances[i][j] = fmod(roundedDistances[i][j], static_cast<double>(srFactor)) + srFactor;
+			roundedDistances[i][j] = Utils::Mod(roundedDistances[i][j], static_cast<double>(srFactor)) + srFactor;
 }
 
 void SuperResolutionBase::ReCalculateDistances(const vector<vector<double>>& registeredDistances, vector<vector<double>>& roundedDistances, vector<vector<double>>& restedDistances) const
