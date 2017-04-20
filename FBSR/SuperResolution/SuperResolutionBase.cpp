@@ -438,7 +438,7 @@ void SuperResolutionBase::ModAndAddFactor(vector<vector<double>>& roundedDistanc
 {
 	for (auto i = 0; i < roundedDistances.size(); ++i)
 		for (auto j = 0; j < roundedDistances[0].size(); ++j)
-			roundedDistances[i][j] = fmod(roundedDistances[i][j], static_cast<double>(srFactor)) + srFactor;
+			roundedDistances[i][j] = Utils::Mod(roundedDistances[i][j], static_cast<double>(srFactor)) + srFactor;
 }
 
 void SuperResolutionBase::ReCalculateDistances(const vector<vector<double>>& registeredDistances, vector<vector<double>>& roundedDistances, vector<vector<double>>& restedDistances) const

@@ -17,6 +17,8 @@ public:
 
 	static vector<Mat> WarpFrames(const vector<Mat>& interp_previous_frames, int borderSize);
 
+	static double Mod(double value, double sr_factor);
+
 private:
 	static float GetVectorMedian(vector<float>& value_list);
 
@@ -137,4 +139,10 @@ inline vector<Mat> Utils::WarpFrames(const vector<Mat>& srcFrames, int borderSiz
 		subFrameSharedMemory.copyTo(warpedResult[i]);
 	}
 	return warpedResult;
+}
+
+inline double Utils::Mod(double value, double sr_factor)
+{
+	auto result = value - floor(value / sr_factor) * sr_factor;
+	return result;
 }
