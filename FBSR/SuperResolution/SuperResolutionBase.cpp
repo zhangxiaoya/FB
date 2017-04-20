@@ -260,7 +260,7 @@ vector<Mat> SuperResolutionBase::NearestInterp2(const vector<Mat>& previousFrame
 	for (auto i = 0; i < distances.size(); ++i)
 	{
 		Mat shiftX = X + distances[i][0];
-		Mat shiftY = Y + distances[i][0];
+		Mat shiftY = Y + distances[i][1];
 
 		auto currentFrame = previousFrames[i];
 		remap(currentFrame, result[i], shiftX, shiftY, INTER_NEAREST);
