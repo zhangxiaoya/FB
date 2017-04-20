@@ -77,13 +77,13 @@ void SuperResolutionBase::UpdateZAndA(Mat& Z, Mat& A, int x, int y, const vector
 	Mat medianFrame(frames[0].rows, frames[0].cols, CV_32FC1);
 	Utils::CalculatedMedian(mergedFrame, medianFrame);
 
-	for (auto r1 = x - 1, r2 = 0; r1 < Z.rows; r1 += srFactor)
+	for (auto r1 = y - 1, r2 = 0; r1 < Z.rows; r1 += srFactor)
 	{
 		auto rowOfMatZ = Z.ptr<float>(r1);
 		auto rowOfMatA = A.ptr<float>(r1);
 		auto rowOfMedianFrame = medianFrame.ptr<float>(r2);
 
-		for (auto c1 = y - 1, c2 = 0; c1 < Z.cols; c1 += srFactor)
+		for (auto c1 = x - 1, c2 = 0; c1 < Z.cols; c1 += srFactor)
 		{
 			rowOfMatZ[c1] = rowOfMedianFrame[c2];
 			rowOfMatA[c1] = static_cast<float>(len);
