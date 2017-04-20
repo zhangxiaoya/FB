@@ -77,17 +77,19 @@ void SuperResolutionBase::UpdateZAndA(Mat& Z, Mat& A, int x, int y, const vector
 	Mat medianFrame(frames[0].rows, frames[0].cols, CV_32FC1);
 	Utils::CalculatedMedian(mergedFrame, medianFrame);
 
-	for (auto r = x - 1; r < Z.rows-3; r += srFactor)
+	for (auto r1 = x - 1, r2 = 0; r1 < Z.rows; r1 += srFactor)
 	{
-		auto rowOfMatZ = Z.ptr<float>(r);
-		auto rowOfMatA = A.ptr<float>(r);
-		auto rowOfMedianFrame = medianFrame.ptr<float>(r / srFactor);
+		auto rowOfMatZ = Z.ptr<float>(r1);
+		auto rowOfMatA = A.ptr<float>(r1);
+		auto rowOfMedianFrame = medianFrame.ptr<float>(r2);
 
-		for (auto c = y - 1; c < Z.cols-3; c += srFactor)
+		for (auto c1 = y - 1, c2 = 0; c1 < Z.cols; c1 += srFactor)
 		{
-			rowOfMatZ[c] = rowOfMedianFrame[c / srFactor];
-			rowOfMatA[c] = static_cast<float>(len);
+			rowOfMatZ[c1] = rowOfMedianFrame[c2];
+			rowOfMatA[c1] = static_cast<float>(len);
+			++c2;
 		}
+		++r2;
 	}
 }
 
@@ -227,7 +229,10 @@ Mat SuperResolutionBase::GradientRegulization(const Mat& Xn, const double P, con
 Mat SuperResolutionBase::FastRobustSR(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances, Mat hpsf)
 {
 	Mat Z, A;
-	Size newSize((frameSize.width + 1) * srFactor - 1, (frameSize.height + 1) * srFactor - 1);
+	auto originalWidth = interp_previous_frames[0].cols;
+	auto originalHeight = interp_previous_frames[0].rows;
+	Size newSize((originalWidth + 1) * srFactor - 1, (originalHeight + 1) * srFactor - 1);
+
 	MedianAndShift(interp_previous_frames, current_distances, newSize, Z, A);
 
 	Mat HR;
@@ -364,7 +369,7 @@ void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray out
 
 	auto Hpsf = Utils::GetGaussianKernal(psfSize, psfSigma);
 
-	auto Hr = FastRobustSR(interpPreviousFrames, roundedDistances, Hpsf);
+	auto Hr = FastRobustSR(warpedFrames, roundedDistances, Hpsf);
 
 	Mat UcharHr;
 	Hr.convertTo(UcharHr, CV_8UC1);

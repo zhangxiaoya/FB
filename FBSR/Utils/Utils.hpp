@@ -68,6 +68,8 @@ inline float Utils::GetVectorMedian(vector<float>& value_list)
 
 inline void Utils::CalculatedMedian(const Mat& source_mat, Mat& median_mat)
 {
+	auto channels = source_mat.channels();
+
 	for (auto r = 0; r < median_mat.rows; ++r)
 	{
 		auto dstRowData = median_mat.ptr<float>(r);
@@ -77,8 +79,8 @@ inline void Utils::CalculatedMedian(const Mat& source_mat, Mat& median_mat)
 		{
 			vector<float> elementVector;
 
-			for (auto i = 0; i < source_mat.channels(); ++i)
-				elementVector.push_back(*(srcRowData + c + i));
+			for (auto i = 0; i < channels; ++i)
+				elementVector.push_back(*(srcRowData + c * channels + i));
 
 			dstRowData[c] = GetVectorMedian(elementVector);
 		}
