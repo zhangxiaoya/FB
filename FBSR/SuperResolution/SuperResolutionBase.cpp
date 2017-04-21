@@ -6,6 +6,7 @@
 #include "ReadEmilyImageList.hpp"
 #include "../LKOFlow/LKOFlow.h"
 #include "../Utils/Utils.hpp"
+#include "../ReadBeijingImageList.hpp"
 
 SuperResolutionBase::SuperResolutionBase(int bufferSize) : isFirstRun(false), bufferSize(bufferSize), srFactor(4), psfSize(3), psfSigma(1.0)
 {
@@ -345,25 +346,50 @@ void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray out
 	 * Set Prarameters for Test Case
 	 *
 	 ***********************************************************************************/
-	bufferSize = 53;
-	auto emilyImageCount = 53;
-	vector<Mat> EmilyImageList;
-	EmilyImageList.resize(emilyImageCount);
-	ReadEmilyImageList::ReadImageList(EmilyImageList, emilyImageCount);
+//	bufferSize = 53;
+//	auto emilyImageCount = 53;
+//	vector<Mat> EmilyImageList;
+//	EmilyImageList.resize(emilyImageCount);
+//	ReadEmilyImageList::ReadImageList(EmilyImageList, emilyImageCount);
 
 	/**********************************************************************************
 	 *
 	 * Read Image List and Register them
 	 *
 	 *********************************************************************************/
-	frameSize = Size(EmilyImageList[0].cols, EmilyImageList[0].rows);
-	auto registeredDistances = RegisterImages(EmilyImageList);
+//	frameSize = Size(EmilyImageList[0].cols, EmilyImageList[0].rows);
+//	auto registeredDistances = RegisterImages(EmilyImageList);
+
+	/*==================================================================================*/
+
+	/************************************************************************************
+	*
+	* Set Prarameters for Test Case
+	*
+	***********************************************************************************/
+	bufferSize = 5;
+	auto beijingImageCount = 10;
+	vector<Mat> beijingImageList;
+	beijingImageList.resize(beijingImageCount);
+	ReadBeijingImageList::ReadImageList(beijingImageList, beijingImageCount);
+
+	/**********************************************************************************
+	*
+	* Read Image List and Register them
+	*
+	*********************************************************************************/
+	frameSize = Size(beijingImageList[0].cols, beijingImageList[0].rows);
+	auto registeredDistances = RegisterImages(beijingImageList);
+
+
+
+
 
 	vector<vector<double>> roundedDistances(registeredDistances.size(), vector<double>(2, 0.0));
 	vector<vector<double>> restedDistances(registeredDistances.size(), vector<double>(2, 0.0));
 	ReCalculateDistances(registeredDistances, roundedDistances, restedDistances);
 
-	auto interpPreviousFrames = NearestInterp2(EmilyImageList, restedDistances);
+	auto interpPreviousFrames = NearestInterp2(beijingImageList, restedDistances);
 
 	auto warpedFrames = Utils::WarpFrames(interpPreviousFrames, 2);
 

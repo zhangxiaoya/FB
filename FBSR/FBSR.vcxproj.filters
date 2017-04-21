@@ -92,6 +92,9 @@
     <ClInclude Include="Utils\Utils.hpp">
       <Filter>SuperResolution\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="ReadBeijingImageList.hpp">
+      <Filter>SuperResolution\ReadTestImageList</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
