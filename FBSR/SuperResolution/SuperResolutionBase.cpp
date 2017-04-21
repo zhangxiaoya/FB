@@ -368,7 +368,7 @@ void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray out
 	*
 	***********************************************************************************/
 	bufferSize = 5;
-	auto beijingImageCount = 10;
+	auto beijingImageCount = 50;
 	vector<Mat> beijingImageList;
 	beijingImageList.resize(beijingImageCount);
 	ReadBeijingImageList::ReadImageList(beijingImageList, beijingImageCount);
@@ -380,9 +380,6 @@ void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray out
 	*********************************************************************************/
 	frameSize = Size(beijingImageList[0].cols, beijingImageList[0].rows);
 	auto registeredDistances = RegisterImages(beijingImageList);
-
-
-
 
 
 	vector<vector<double>> roundedDistances(registeredDistances.size(), vector<double>(2, 0.0));
