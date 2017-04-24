@@ -20,7 +20,9 @@ inline void ReadBUAAImageList::ReadImageList(vector<cv::Mat>& imageList, int ima
 	for (auto i = 0; i < imageCount; ++i)
 	{
 		char name[30];
-		snprintf(name, sizeof(name), "Data/DownScale/down%d.png", i);
+//		snprintf(name, sizeof(name), "Data/DownScale/down%d.png", i);
+		snprintf(name, sizeof(name), "Data/fog_low_gray/%d.png", i);
+		
 		string fullName(name);
 		auto curImg = imread(fullName, CV_LOAD_IMAGE_GRAYSCALE);
 
