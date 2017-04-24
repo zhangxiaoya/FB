@@ -7,6 +7,7 @@
 #include "../LKOFlow/LKOFlow.h"
 #include "../Utils/Utils.hpp"
 #include "../ReadBeijingImageList.hpp"
+#include "../ReadBUAAImageList.hpp"
 
 SuperResolutionBase::SuperResolutionBase(int bufferSize) : isFirstRun(false), bufferSize(bufferSize), srFactor(4), psfSize(3), psfSigma(1.0)
 {
@@ -52,6 +53,7 @@ void SuperResolutionBase::Init(Ptr<FrameSource>& frameSource)
 {
 	Mat currentFrame;
 	SetProps(0.7, 1, 0.04, 2, 20);
+	srFactor = 2;
 
 	for (auto i = 0; i < bufferSize; ++i)
 	{
@@ -367,26 +369,49 @@ void SuperResolutionBase::Process(Ptr<FrameSource>& frameSource, OutputArray out
 	* Set Prarameters for Test Case
 	*
 	***********************************************************************************/
-	bufferSize = 5;
-	auto beijingImageCount = 50;
-	vector<Mat> beijingImageList;
-	beijingImageList.resize(beijingImageCount);
-	ReadBeijingImageList::ReadImageList(beijingImageList, beijingImageCount);
+//	bufferSize = 50;
+//	auto beijingImageCount = 50;
+//	vector<Mat> beijingImageList;
+//	beijingImageList.resize(beijingImageCount);
+//	ReadBeijingImageList::ReadImageList(beijingImageList, beijingImageCount);
 
 	/**********************************************************************************
 	*
 	* Read Image List and Register them
 	*
 	*********************************************************************************/
-	frameSize = Size(beijingImageList[0].cols, beijingImageList[0].rows);
-	auto registeredDistances = RegisterImages(beijingImageList);
+//	frameSize = Size(beijingImageList[0].cols, beijingImageList[0].rows);
+//	auto registeredDistances = RegisterImages(beijingImageList);
+
+	/*==================================================================================*/
+
+	/************************************************************************************
+	*
+	* Set Prarameters for Test Case
+	*
+	***********************************************************************************/
+	srFactor = 2;
+	bufferSize = 5;
+	auto buaaImageCount = 12;
+	vector<Mat> buaaImageList;
+	buaaImageList.resize(buaaImageCount);
+	ReadBUAAImageList::ReadImageList(buaaImageList, buaaImageCount);
+
+	reverse(buaaImageList.begin(), buaaImageList.end());
+	/**********************************************************************************
+	*
+	* Read Image List and Register them
+	*
+	*********************************************************************************/
+	frameSize = Size(buaaImageList[0].cols, buaaImageList[0].rows);
+	auto registeredDistances = RegisterImages(buaaImageList);
 
 
 	vector<vector<double>> roundedDistances(registeredDistances.size(), vector<double>(2, 0.0));
 	vector<vector<double>> restedDistances(registeredDistances.size(), vector<double>(2, 0.0));
 	ReCalculateDistances(registeredDistances, roundedDistances, restedDistances);
 
-	auto interpPreviousFrames = NearestInterp2(beijingImageList, restedDistances);
+	auto interpPreviousFrames = NearestInterp2(buaaImageList, restedDistances);
 
 	auto warpedFrames = Utils::WarpFrames(interpPreviousFrames, 2);
 
