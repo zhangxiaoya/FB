@@ -25,11 +25,11 @@
     <Filter Include="SuperResolution\FrameBuffer">
       <UniqueIdentifier>{3902f390-4633-43ed-a99a-261550aac64d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="SuperResolution\ReadEmilyImageList">
-      <UniqueIdentifier>{3243e8b9-51a6-403b-ab0c-9babae9125f5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="SuperResolution\Utils">
       <UniqueIdentifier>{7ac41ae4-f595-47f7-b2a7-c8d54b1dffe3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SuperResolution\ReadTestImageList">
+      <UniqueIdentifier>{3243e8b9-51a6-403b-ab0c-9babae9125f5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -87,10 +87,16 @@
       <Filter>LKOFlow</Filter>
     </ClInclude>
     <ClInclude Include="SuperResolution\ReadEmilyImageList.hpp">
-      <Filter>SuperResolution\ReadEmilyImageList</Filter>
+      <Filter>SuperResolution\ReadTestImageList</Filter>
     </ClInclude>
     <ClInclude Include="Utils\Utils.hpp">
       <Filter>SuperResolution\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="ReadBeijingImageList.hpp">
+      <Filter>SuperResolution\ReadTestImageList</Filter>
+    </ClInclude>
+    <ClInclude Include="ReadBUAAImageList.hpp">
+      <Filter>SuperResolution\ReadTestImageList</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
