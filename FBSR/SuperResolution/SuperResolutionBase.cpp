@@ -6,9 +6,6 @@
 #include "ReadEmilyImageList.hpp"
 #include "../LKOFlow/LKOFlow.h"
 #include "../Utils/Utils.hpp"
-#include "../ReadBeijingImageList.hpp"
-#include "../ReadBUAAImageList.hpp"
-#include "../ReadPaperImageList.hpp"
 
 SuperResolutionBase::SuperResolutionBase(int bufferSize) : isFirstRun(false), bufferSize(bufferSize), srFactor(4), psfSize(3), psfSigma(1.0)
 {
@@ -51,6 +48,11 @@ int SuperResolutionBase::NextFrame(OutputArray outputFrame)
 		isFirstRun = false;
 	}
 	return Process(outputFrame);
+}
+
+void SuperResolutionBase::SetBufferSize(int buffer_size)
+{
+	bufferSize = buffer_size;
 }
 
 void SuperResolutionBase::Init(Ptr<FrameSource>& frameSource)
