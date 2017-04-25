@@ -14,7 +14,7 @@ public:
 
 inline void ReadPaperImageList::ReadImageList(vector<cv::Mat>& imageList, int imageCount)
 {
-	auto startIndex = 50;
+	auto startIndex = 0;
 	if (imageCount != imageList.size())
 		return;
 
