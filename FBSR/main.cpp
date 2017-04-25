@@ -44,17 +44,38 @@ int main()
 //	superResolution->SetFrameSource(videoFrameSource);
 
 	/***********************         From Image List         ***********************/
-	auto paperImageCount = 21;
 //	auto fileNameFormat = "Data/paper3_low_gray/%d.png";
 //	auto fileNameFormat = "Data/fog_low_gray/%d.png";
-//	auto fileNameFormat = "Data/dataSets/Books/Book0%d.jpg";
+
+//	auto startIndex = 60;
+//	auto ImageCount = 38;
+//	auto fileNameFormat = "Data/dataSets/Books/Book%03d.jpg";
+//	auto resultNameFormat = "Result/dataSets/Books/im%03d.png";
+//	superResolution->SetBufferSize(8);
+
+//	auto startIndex = 17;
+//	auto ImageCount = 11;
 //	auto fileNameFormat = "Data/dataSets/Building_Downs2/1%d.jpg";
+//	auto resultNameFormat = "Result/dataSets/Building_Downs2/im%03d.png";
+//	superResolution->SetBufferSize(8);
+
+//	auto startIndex = 11;
+//	auto ImageCount = 4;
 //	auto fileNameFormat = "Data/dataSets/Aerial4/data%d.tif";
-//	auto fileNameFormat = "Data/dataSets/LSU_MAP3/im0%d.jpg";
-	auto fileNameFormat = "Data/dataSets/Office1/im%03d.jpg";
-	auto startIndex = 1;
+//	auto resultNameFormat = "Result/dataSets/Aerial4/im%03d.png";
+
+	auto startIndex = 73;
+	auto ImageCount = 13;
+	auto fileNameFormat = "Data/dataSets/LSU_MAP3/im0%d.jpg";
+	auto resultNameFormat = "Result/dataSets/LSU_MAP3/im%03d.png";
+	superResolution->SetBufferSize(6);
+
+//	auto startIndex = 1;
+//	auto ImageCount = 21;
+//	auto fileNameFormat = "Data/dataSets/Office1/im%03d.jpg";
+//	auto resultNameFormat = "Result/dataSets/Office1/im%03d.png";
 	
-	auto imageListFrameSource = FrameSourceFactory::createFrameSourceFromImageList(paperImageCount, fileNameFormat, startIndex);
+	auto imageListFrameSource = FrameSourceFactory::createFrameSourceFromImageList(ImageCount, fileNameFormat, startIndex);
 
 	superResolution->SetFrameSource(imageListFrameSource);
 
@@ -74,8 +95,8 @@ int main()
 
 		waitKey(100);
 		
-		char name[30];
-		sprintf_s(name, "%d.png", index);
+		char name[50];
+		sprintf_s(name, resultNameFormat, index);
 		imwrite(name, currentFrame);
 
 		if (currentStatus == -1)
@@ -88,5 +109,6 @@ int main()
 	cout << endl;
 	cout << "All Done!" << endl;
 	system("pause");
+
 	return 0;
 }
