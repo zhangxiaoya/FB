@@ -2,7 +2,7 @@
 
 #include "EmptyFrameSource.hpp"
 #include "VideoFrameSource.hpp"
-#include "../ImageListFrameSource.hpp"
+#include "ImageListFrameSource.hpp"
 
 class FrameSourceFactory
 {

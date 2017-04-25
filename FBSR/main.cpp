@@ -3,7 +3,6 @@
 #include "SuperResolution/SuperResolutionFactory.h"
 
 #include "SuperResolution/ReadEmilyImageList.hpp"
-#include "ReadPaperImageList.hpp"
 
 using namespace std;
 using namespace cv;
