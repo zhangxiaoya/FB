@@ -140,6 +140,7 @@
     <ClInclude Include="PropsStruct.h" />
     <ClInclude Include="ReadBeijingImageList.hpp" />
     <ClInclude Include="ReadBUAAImageList.hpp" />
+    <ClInclude Include="ReadPaperImageList.hpp" />
     <ClInclude Include="SuperResolution\FrameBuffer\FrameBuffer.h" />
     <ClInclude Include="SuperResolution\ReadEmilyImageList.hpp" />
     <ClInclude Include="SuperResolution\SuperResolutionBase.h" />

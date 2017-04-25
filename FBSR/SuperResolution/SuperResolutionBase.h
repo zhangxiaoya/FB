@@ -14,33 +14,51 @@ class SuperResolutionBase
 public:
 
 	explicit SuperResolutionBase(int bufferSize = 8);
+
 	bool SetFrameSource(const cv::Ptr<FrameSource>& frameSource);
+
 	void SetProps(double alpha, double beta, double lambda, double P, int maxIterationCount);
+
+	void SetSRFactor(int sr_factor);
+
 	bool Reset();
 
-	void NextFrame(OutputArray outputFrame);
+	int NextFrame(OutputArray outputFrame);
 
 protected:
 	void Init(Ptr<FrameSource>& frameSource);
+
 	void UpdateZAndA(Mat& mat, Mat& A, int x, int y, const vector<bool>& index, const vector<Mat>& mats, const int len) const;
+
 	void MedianAndShift(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances, const Size& new_size, Mat& mat, Mat& mat1) const;
+
 	Mat FastGradientBackProject(const Mat& Xn, const Mat& Z, const Mat& A, const Mat& hpsf);
+
 	Mat GradientRegulization(const Mat& Xn, const double p, const double alpha) const;
+
 	Mat FastRobustSR(const vector<Mat>& interp_previous_frames, const vector<vector<double>>& current_distances, Mat hpsf);
-	void Process(Ptr<FrameSource>& frameSource, OutputArray output);
+
+	int UpdateFrameBuffer();
+
+	int Process(OutputArray output);
+
 	vector<Mat> NearestInterp2(const vector<Mat>& previousFrames, const vector<vector<double>>& currentDistances) const;
 
 private:
 	static vector<vector<double> > RegisterImages(vector<Mat>& frames);
+
 	void GetRestDistance(const vector<vector<double>>& roundedDistances, vector<vector<double>>& restedDistances, int srFactor) const;
+
 	void RoundAndScale(const vector<vector<double>>& registeredDistances, vector<vector<double>>& roundedDistances, int srFactor) const;
 
 	void ModAndAddFactor(vector<vector<double>>& roundedDistances, int srFactor) const;
+
 	void ReCalculateDistances(const vector<vector<double>>& registeredDistances, vector<vector<double>>& roundedDistances, vector<vector<double>>& restedDistances) const;
 
 private:
 	Ptr<FrameSource> frameSource;
 	Ptr<FrameBuffer> frameBuffer;
+
 	bool isFirstRun;
 	int bufferSize;
 	Size frameSize;

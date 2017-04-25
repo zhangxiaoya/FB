@@ -9,17 +9,53 @@ using namespace cv;
 
 int main()
 {
-		const string videoFileName = "768x576.avi";
+	/*******************************************************************************
+	 *
+	 * Create a Super Resolution object and set basic props
+	 *
+	 *******************************************************************************/
+	auto superResolution = SuperResolutionFactory::CreateSuperResolutionBase();
 
-		auto videoFrameSource = FrameSourceFactory::createFrameSourceFromVideo(videoFileName);
+	auto alpha             = 0.7;
+	auto beta              = 1.0;
+	auto lambda            = 0.04;
+	auto p                 = 2;
+	auto maxIterationCount = 20;
+	auto srFactor          = 2;
 
-		Mat currentFrame;
+	superResolution->SetProps(alpha, beta, lambda, p, maxIterationCount);
+	superResolution->SetSRFactor(srFactor);
 
-		auto superResolution = SuperResolutionFactory::CreateSuperResolutionBase();
+	/*******************************************************************************
+	 *
+	 * set Data Source -- from Video
+	 *
+	 *******************************************************************************/
 
-//		superResolution->SetFrameSource(videoFrameSource);
+	const string videoFileName = "Data/fog_low_gray.avi";
 
-		superResolution->NextFrame(currentFrame);
+	auto videoFrameSource = FrameSourceFactory::createFrameSourceFromVideo(videoFileName);
 
+	superResolution->SetFrameSource(videoFrameSource);
+
+	/*******************************************************************************
+	 *
+	 * Processing Super Resolution
+	 *
+	 *******************************************************************************/
+
+	Mat currentFrame;
+	while (true)
+	{
+		auto currentStatus = superResolution->NextFrame(currentFrame);
+
+		imshow("High Resolution Frame", currentFrame);
+
+		waitKey(100);
+
+		if (currentStatus == -1)
+			break;
+	}
+	
 	return 0;
 }
