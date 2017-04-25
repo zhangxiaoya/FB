@@ -3,6 +3,7 @@
 #include "SuperResolution/SuperResolutionFactory.h"
 
 #include "SuperResolution/ReadEmilyImageList.hpp"
+#include <iostream>
 
 using namespace std;
 using namespace cv;
@@ -22,7 +23,7 @@ int main()
 	auto p = 2;
 	auto maxIterationCount = 20;
 	auto srFactor = 2;
-	auto bufferSize = 50;
+	auto bufferSize = 8;
 
 	superResolution->SetProps(alpha, beta, lambda, p, maxIterationCount);
 	superResolution->SetBufferSize(bufferSize);
@@ -42,9 +43,13 @@ int main()
 //	superResolution->SetFrameSource(videoFrameSource);
 
 	/***********************         From Image List         ***********************/
-	auto paperImageCount = 400;
-	auto fileNameFormat = "Data/paper3_low_gray/%d.png";
-	auto imageListFrameSource = FrameSourceFactory::createFrameSourceFromImageList(paperImageCount, fileNameFormat);
+	auto paperImageCount = 40;
+//	auto fileNameFormat = "Data/paper3_low_gray/%d.png";
+//	auto fileNameFormat = "Data/fog_low_gray/%d.png";
+	auto fileNameFormat = "Data/dataSets/Books/Book0%d.jpg";
+	auto startIndex = 60;
+	
+	auto imageListFrameSource = FrameSourceFactory::createFrameSourceFromImageList(paperImageCount, fileNameFormat, startIndex);
 
 	superResolution->SetFrameSource(imageListFrameSource);
 
@@ -53,10 +58,11 @@ int main()
 	 * Processing Super Resolution
 	 *
 	 *******************************************************************************/
-
+	auto index = 0;
 	Mat currentFrame;
 	while (true)
 	{
+		cout << index << "..";
 		auto currentStatus = superResolution->NextFrame(currentFrame);
 
 		imshow("High Resolution Frame", currentFrame);
@@ -65,8 +71,16 @@ int main()
 
 		if (currentStatus == -1)
 			break;
+
+		char name[30];
+		sprintf_s(name, "%d.png", index);
+		imwrite(name, currentFrame);
+		++index;
 	}
 	destroyAllWindows();
-
+	
+	cout << endl;
+	cout << "All Done!" << endl;
+	system("pause");
 	return 0;
 }

@@ -135,8 +135,8 @@
     <ClInclude Include="FrameSource\EmptyFrameSource.hpp" />
     <ClInclude Include="FrameSource\FrameSource.h" />
     <ClInclude Include="FrameSource\FrameSourceFactory.h" />
+    <ClInclude Include="FrameSource\ImageListFrameSource.hpp" />
     <ClInclude Include="FrameSource\VideoFrameSource.hpp" />
-    <ClInclude Include="ImageListFrameSource.hpp" />
     <ClInclude Include="LKOFlow\LKOFlow.h" />
     <ClInclude Include="PropsStruct.h" />
     <ClInclude Include="ReadBeijingImageList.hpp" />
@@ -150,7 +150,7 @@
     <ClInclude Include="Utils\Utils.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ClassDiagram.cd" />
+    <None Include="ClassDiagram22.cd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

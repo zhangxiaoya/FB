@@ -17,9 +17,9 @@ public:
 		return new VideoFrameSource(videoFileName);
 	}
 
-	static Ptr<FrameSource> createFrameSourceFromImageList(const int& image_count, string file_name_format)
+	static Ptr<FrameSource> createFrameSourceFromImageList(const int& image_count, string file_name_format, int start_index = 0)
 	{
-		return  new ImageListFrameSource(image_count, file_name_format);
+		return  new ImageListFrameSource(image_count, file_name_format, start_index);
 	}
 };
 

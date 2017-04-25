@@ -7,9 +7,8 @@
 #include "../LKOFlow/LKOFlow.h"
 #include "../Utils/Utils.hpp"
 
-SuperResolutionBase::SuperResolutionBase(int bufferSize) : isFirstRun(false), bufferSize(bufferSize), srFactor(4), psfSize(3), psfSigma(1.0)
+SuperResolutionBase::SuperResolutionBase(int buffer_size) : isFirstRun(false), bufferSize(buffer_size), srFactor(4), psfSize(3), psfSigma(1.0)
 {
-	this->frameBuffer = new FrameBuffer(bufferSize);
 }
 
 bool SuperResolutionBase::SetFrameSource(const cv::Ptr<FrameSource>& frameSource)
@@ -57,8 +56,14 @@ void SuperResolutionBase::SetBufferSize(int buffer_size)
 
 void SuperResolutionBase::Init(Ptr<FrameSource>& frameSource)
 {
-	Mat currentFrame;
+	if(this->frameBuffer)
+	{
+		delete this->frameBuffer;
+		this->frameBuffer = nullptr;
+	}
+	this->frameBuffer = new FrameBuffer(bufferSize);
 
+	Mat currentFrame;
 	for (auto i = 0; i < bufferSize; ++i)
 	{
 		frameSource->nextFrame(currentFrame);
@@ -446,6 +451,7 @@ int SuperResolutionBase::Process(OutputArray outputFrame)
 //	auto registeredDistances = RegisterImages(paperImageList);
 
 	auto frameList = this->frameBuffer->GetAll();
+	reverse(frameList.begin(), frameList.end());
 	auto registeredDistances = RegisterImages(frameList);
 
 	vector<vector<double>> roundedDistances(registeredDistances.size(), vector<double>(2, 0.0));
