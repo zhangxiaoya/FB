@@ -3,25 +3,25 @@
 #include <vector>
 #include <highgui/highgui.hpp>
 
-using namespace std;
-using namespace cv;
-
 class ReadPaperImageList
 {
 public:
-	static void ReadImageList(vector<cv::Mat>& imageList, int imageCount);
+	static void ReadImageList(vector<cv::Mat>& imageList, int imageCount, string file_name_format = "Data/paper3_low_gray/%d.png");
 };
 
-inline void ReadPaperImageList::ReadImageList(vector<cv::Mat>& imageList, int imageCount)
+inline void ReadPaperImageList::ReadImageList(vector<cv::Mat>& imageList, int imageCount, string file_name_format)
 {
 	auto startIndex = 0;
+
 	if (imageCount != imageList.size())
 		return;
 
+	auto fileNameFormat = file_name_format.c_str();
+
 	for (auto i = startIndex; i < (imageCount + startIndex); ++i)
 	{
-		char name[30];
-		snprintf(name, sizeof(name), "Data/paper3_low_gray/%d.png", i);
+		char name[50];
+		snprintf(name, sizeof(name), fileNameFormat, i);
 
 		string fullName(name);
 		auto curImg = imread(fullName, CV_LOAD_IMAGE_GRAYSCALE);
@@ -29,6 +29,6 @@ inline void ReadPaperImageList::ReadImageList(vector<cv::Mat>& imageList, int im
 		Mat floatGrayImg;
 		curImg.convertTo(floatGrayImg, CV_32FC1);
 
-		floatGrayImg.copyTo(imageList[i- startIndex]);
+		floatGrayImg.copyTo(imageList[i - startIndex]);
 	}
 }

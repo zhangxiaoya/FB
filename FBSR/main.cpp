@@ -41,8 +41,8 @@ int main()
 
 	/***********************         From Image List         ***********************/
 	auto paperImageCount = 400;
-
-	auto imageListFrameSource = FrameSourceFactory::createFrameSourceFromImageList(paperImageCount, "");
+	auto fileNameFormat = "Data/paper3_low_gray/%d.png";
+	auto imageListFrameSource = FrameSourceFactory::createFrameSourceFromImageList(paperImageCount, fileNameFormat);
 
 	superResolution->SetFrameSource(imageListFrameSource);
 

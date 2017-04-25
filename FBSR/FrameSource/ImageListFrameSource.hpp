@@ -5,7 +5,7 @@
 class ImageListFrameSource:public FrameSource
 {
 public:
-	explicit ImageListFrameSource(int image_count, string prefix_file_name);
+	explicit ImageListFrameSource(int image_count, string file_name_format);
 
 	void nextFrame(OutputArray frame) override;
 
@@ -15,10 +15,10 @@ private:
 	vector<cv::Mat> imageList;
 	int imageCount;
 	int currentIndex;
-	string prefixFileName;
+	string fileNameFormat;
 };
 
-inline ImageListFrameSource::ImageListFrameSource(int image_count, string prefix_file_name): imageCount(image_count), prefixFileName(prefix_file_name)
+inline ImageListFrameSource::ImageListFrameSource(int image_count, string file_name_format): imageCount(image_count), fileNameFormat(file_name_format)
 {
 	ImageListFrameSource::reset();
 }
@@ -41,5 +41,5 @@ inline void ImageListFrameSource::reset()
 {
 	imageList.resize(imageCount);
 	currentIndex = 0;
-	ReadPaperImageList::ReadImageList(imageList, imageCount);
+	ReadPaperImageList::ReadImageList(imageList, imageCount, fileNameFormat);
 }
