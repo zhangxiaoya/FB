@@ -6,29 +6,29 @@
 using namespace std;
 using namespace cv;
 
-class ReadBUAAImageList
+class ReadPaperImageList
 {
 public:
 	static void ReadImageList(vector<cv::Mat>& imageList, int imageCount);
 };
 
-inline void ReadBUAAImageList::ReadImageList(vector<cv::Mat>& imageList, int imageCount)
+inline void ReadPaperImageList::ReadImageList(vector<cv::Mat>& imageList, int imageCount)
 {
+	auto startIndex = 50;
 	if (imageCount != imageList.size())
 		return;
 
-	for (auto i = 0; i < imageCount; ++i)
+	for (auto i = startIndex; i < (imageCount + startIndex); ++i)
 	{
 		char name[30];
-//		snprintf(name, sizeof(name), "Data/DownScale/down%d.png", i);
-		snprintf(name, sizeof(name), "Data/fog_low_gray/%d.png", i);
-		
+		snprintf(name, sizeof(name), "Data/paper3_low_gray/%d.png", i);
+
 		string fullName(name);
 		auto curImg = imread(fullName, CV_LOAD_IMAGE_GRAYSCALE);
 
 		Mat floatGrayImg;
 		curImg.convertTo(floatGrayImg, CV_32FC1);
 
-		floatGrayImg.copyTo(imageList[i]);
+		floatGrayImg.copyTo(imageList[i- startIndex]);
 	}
 }
