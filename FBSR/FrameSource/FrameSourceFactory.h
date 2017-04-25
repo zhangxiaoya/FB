@@ -2,7 +2,7 @@
 
 #include "EmptyFrameSource.hpp"
 #include "VideoFrameSource.hpp"
-#include "../ImageListFrameSource.hpp"
+#include "ImageListFrameSource.hpp"
 
 class FrameSourceFactory
 {
@@ -17,9 +17,9 @@ public:
 		return new VideoFrameSource(videoFileName);
 	}
 
-	static Ptr<FrameSource> createFrameSourceFromImageList(const int& image_count, string prefix_file_name)
+	static Ptr<FrameSource> createFrameSourceFromImageList(const int& image_count, string file_name_format)
 	{
-		return  new ImageListFrameSource(image_count, prefix_file_name);
+		return  new ImageListFrameSource(image_count, file_name_format);
 	}
 };
 
