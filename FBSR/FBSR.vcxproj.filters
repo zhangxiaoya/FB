@@ -101,6 +101,9 @@
     <ClInclude Include="ReadPaperImageList.hpp">
       <Filter>SuperResolution\ReadTestImageList</Filter>
     </ClInclude>
+    <ClInclude Include="ImageListFrameSource.hpp">
+      <Filter>FrameSource</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

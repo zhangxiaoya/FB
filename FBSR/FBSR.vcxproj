@@ -136,6 +136,7 @@
     <ClInclude Include="FrameSource\FrameSource.h" />
     <ClInclude Include="FrameSource\FrameSourceFactory.h" />
     <ClInclude Include="FrameSource\VideoFrameSource.hpp" />
+    <ClInclude Include="ImageListFrameSource.hpp" />
     <ClInclude Include="LKOFlow\LKOFlow.h" />
     <ClInclude Include="PropsStruct.h" />
     <ClInclude Include="ReadBeijingImageList.hpp" />

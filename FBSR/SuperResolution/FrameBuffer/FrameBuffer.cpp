@@ -27,7 +27,10 @@ void FrameBuffer::Push(Mat& frame)
 void FrameBuffer::PushGray(Mat& frame)
 {
 	Mat grayFrame;
-	cvtColor(frame, grayFrame, CV_BGR2GRAY);
+	if (frame.channels() == 3)
+		cvtColor(frame, grayFrame, CV_BGR2GRAY);
+	else
+		grayFrame = frame;
 
 	Mat floatGrayFrame;
 	grayFrame.convertTo(floatGrayFrame, CV_32FC1);
