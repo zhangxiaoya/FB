@@ -22,8 +22,10 @@ int main()
 	auto p = 2;
 	auto maxIterationCount = 20;
 	auto srFactor = 2;
+	auto bufferSize = 50;
 
 	superResolution->SetProps(alpha, beta, lambda, p, maxIterationCount);
+	superResolution->SetBufferSize(bufferSize);
 	superResolution->SetSRFactor(srFactor);
 
 	/*******************************************************************************
@@ -64,6 +66,7 @@ int main()
 		if (currentStatus == -1)
 			break;
 	}
+	destroyAllWindows();
 
 	return 0;
 }

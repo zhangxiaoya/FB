@@ -25,6 +25,8 @@ public:
 
 	int NextFrame(OutputArray outputFrame);
 
+	void SetBufferSize(int buffer_size);
+
 protected:
 	void Init(Ptr<FrameSource>& frameSource);
 
