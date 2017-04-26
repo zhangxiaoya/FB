@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="FrameSource">
+      <UniqueIdentifier>{d52a0449-9cd8-4793-bb00-8ed149701e70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LKOFlow">
+      <UniqueIdentifier>{05e17192-2d6f-417d-ad16-8f436e18cab1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SuperResolution">
+      <UniqueIdentifier>{a3ceaa1e-5d6e-4eb5-b316-1c7e37b38198}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SuperResolution\FrameBuffer">
+      <UniqueIdentifier>{3902f390-4633-43ed-a99a-261550aac64d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SuperResolution\Utils">
+      <UniqueIdentifier>{7ac41ae4-f595-47f7-b2a7-c8d54b1dffe3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SuperResolution\ReadTestImageList">
+      <UniqueIdentifier>{3243e8b9-51a6-403b-ab0c-9babae9125f5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="MultiFrameProcesser.hpp">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="SuperResolution\SuperResolutionBTVL1.cpp">
+      <Filter>SuperResolution</Filter>
+    </ClCompile>
+    <ClCompile Include="SuperResolution\SuperResolutionBase.cpp">
+      <Filter>SuperResolution</Filter>
+    </ClCompile>
+    <ClCompile Include="SuperResolution\FrameBuffer\FrameBuffer.cpp">
+      <Filter>SuperResolution\FrameBuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="LKOFlow\LKOFlow.cpp">
+      <Filter>LKOFlow</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="FrameSource\CaptureFrameSource.hpp">
+      <Filter>FrameSource</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameSource\EmptyFrameSource.hpp">
+      <Filter>FrameSource</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameSource\FrameSource.h">
+      <Filter>FrameSource</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameSource\FrameSourceFactory.h">
+      <Filter>FrameSource</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameSource\VideoFrameSource.hpp">
+      <Filter>FrameSource</Filter>
+    </ClInclude>
+    <ClInclude Include="SuperResolution\SuperResolutionFactory.h">
+      <Filter>SuperResolution</Filter>
+    </ClInclude>
+    <ClInclude Include="SuperResolution\SuperResolutionBTVL1.h">
+      <Filter>SuperResolution</Filter>
+    </ClInclude>
+    <ClInclude Include="SuperResolution\SuperResolutionBase.h">
+      <Filter>SuperResolution</Filter>
+    </ClInclude>
+    <ClInclude Include="SuperResolution\FrameBuffer\FrameBuffer.h">
+      <Filter>SuperResolution\FrameBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="PropsStruct.h">
+      <Filter>SuperResolution</Filter>
+    </ClInclude>
+    <ClInclude Include="LKOFlow\LKOFlow.h">
+      <Filter>LKOFlow</Filter>
+    </ClInclude>
+    <ClInclude Include="SuperResolution\ReadEmilyImageList.hpp">
+      <Filter>SuperResolution\ReadTestImageList</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\Utils.hpp">
+      <Filter>SuperResolution\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="ReadBeijingImageList.hpp">
+      <Filter>SuperResolution\ReadTestImageList</Filter>
+    </ClInclude>
+    <ClInclude Include="ReadBUAAImageList.hpp">
+      <Filter>SuperResolution\ReadTestImageList</Filter>
+    </ClInclude>
+    <ClInclude Include="ReadPaperImageList.hpp">
+      <Filter>SuperResolution\ReadTestImageList</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameSource\ImageListFrameSource.hpp">
+      <Filter>FrameSource</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram22.cd" />
+  </ItemGroup>
+</Project>
