@@ -6,6 +6,8 @@
 # Ignore image file
 *.jpg
 *.png
+*.tif
+*.db
 
 # Ignorw video file
 *.avi
