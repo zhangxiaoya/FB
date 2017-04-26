@@ -128,7 +128,6 @@
     <ClCompile Include="MultiFrameProcesser.hpp" />
     <ClCompile Include="SuperResolution\FrameBuffer\FrameBuffer.cpp" />
     <ClCompile Include="SuperResolution\SuperResolutionBase.cpp" />
-    <ClCompile Include="SuperResolution\SuperResolutionBTVL1.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FrameSource\CaptureFrameSource.hpp" />
@@ -145,7 +144,6 @@
     <ClInclude Include="SuperResolution\FrameBuffer\FrameBuffer.h" />
     <ClInclude Include="SuperResolution\ReadEmilyImageList.hpp" />
     <ClInclude Include="SuperResolution\SuperResolutionBase.h" />
-    <ClInclude Include="SuperResolution\SuperResolutionBTVL1.h" />
     <ClInclude Include="SuperResolution\SuperResolutionFactory.h" />
     <ClInclude Include="Utils\Utils.hpp" />
   </ItemGroup>

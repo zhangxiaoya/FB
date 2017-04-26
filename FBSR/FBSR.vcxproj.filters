@@ -39,9 +39,6 @@
     <ClCompile Include="MultiFrameProcesser.hpp">
       <Filter>头文件</Filter>
     </ClCompile>
-    <ClCompile Include="SuperResolution\SuperResolutionBTVL1.cpp">
-      <Filter>SuperResolution</Filter>
-    </ClCompile>
     <ClCompile Include="SuperResolution\SuperResolutionBase.cpp">
       <Filter>SuperResolution</Filter>
     </ClCompile>
@@ -69,9 +66,6 @@
       <Filter>FrameSource</Filter>
     </ClInclude>
     <ClInclude Include="SuperResolution\SuperResolutionFactory.h">
-      <Filter>SuperResolution</Filter>
-    </ClInclude>
-    <ClInclude Include="SuperResolution\SuperResolutionBTVL1.h">
       <Filter>SuperResolution</Filter>
     </ClInclude>
     <ClInclude Include="SuperResolution\SuperResolutionBase.h">
