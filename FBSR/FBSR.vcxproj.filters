@@ -74,9 +74,6 @@
     <ClInclude Include="SuperResolution\FrameBuffer\FrameBuffer.h">
       <Filter>SuperResolution\FrameBuffer</Filter>
     </ClInclude>
-    <ClInclude Include="PropsStruct.h">
-      <Filter>SuperResolution</Filter>
-    </ClInclude>
     <ClInclude Include="LKOFlow\LKOFlow.h">
       <Filter>LKOFlow</Filter>
     </ClInclude>
@@ -91,6 +88,9 @@
     </ClInclude>
     <ClInclude Include="FrameSource\ImageListReader\ImageListReaderBase.hpp">
       <Filter>FrameSource\ReadImageList</Filter>
+    </ClInclude>
+    <ClInclude Include="SuperResolution\PropsStruct.h">
+      <Filter>SuperResolution</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -4,7 +4,7 @@
 
 #include "FrameBuffer/FrameBuffer.h"
 #include "../FrameSource/FrameSource.h"
-#include "../PropsStruct.h"
+#include "PropsStruct.h"
 
 using namespace std;
 using namespace cv;

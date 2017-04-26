@@ -139,8 +139,8 @@
     <ClInclude Include="FrameSource\ImageListReader\ImageListReaderBase.hpp" />
     <ClInclude Include="FrameSource\VideoFrameSource.hpp" />
     <ClInclude Include="LKOFlow\LKOFlow.h" />
-    <ClInclude Include="PropsStruct.h" />
     <ClInclude Include="SuperResolution\FrameBuffer\FrameBuffer.h" />
+    <ClInclude Include="SuperResolution\PropsStruct.h" />
     <ClInclude Include="SuperResolution\SuperResolutionBase.h" />
     <ClInclude Include="SuperResolution\SuperResolutionFactory.h" />
     <ClInclude Include="Utils\Utils.hpp" />
