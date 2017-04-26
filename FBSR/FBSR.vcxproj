@@ -135,14 +135,12 @@
     <ClInclude Include="FrameSource\FrameSource.h" />
     <ClInclude Include="FrameSource\FrameSourceFactory.h" />
     <ClInclude Include="FrameSource\ImageListFrameSource.hpp" />
+    <ClInclude Include="FrameSource\ImageListReader\ImageListReader.hpp" />
+    <ClInclude Include="FrameSource\ImageListReader\ImageListReaderBase.hpp" />
     <ClInclude Include="FrameSource\VideoFrameSource.hpp" />
     <ClInclude Include="LKOFlow\LKOFlow.h" />
     <ClInclude Include="PropsStruct.h" />
-    <ClInclude Include="ReadBeijingImageList.hpp" />
-    <ClInclude Include="ReadBUAAImageList.hpp" />
-    <ClInclude Include="ReadPaperImageList.hpp" />
     <ClInclude Include="SuperResolution\FrameBuffer\FrameBuffer.h" />
-    <ClInclude Include="SuperResolution\ReadEmilyImageList.hpp" />
     <ClInclude Include="SuperResolution\SuperResolutionBase.h" />
     <ClInclude Include="SuperResolution\SuperResolutionFactory.h" />
     <ClInclude Include="Utils\Utils.hpp" />

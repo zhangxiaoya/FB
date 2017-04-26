@@ -1,6 +1,6 @@
 #pragma once
 #include "FrameSource/FrameSource.h"
-#include "ReadPaperImageList.hpp"
+#include "ImageListReader/ImageListReader.hpp"
 
 class ImageListFrameSource:public FrameSource
 {
@@ -42,5 +42,5 @@ inline void ImageListFrameSource::reset()
 {
 	imageList.resize(imageCount);
 	currentIndex = 0;
-	ReadPaperImageList::ReadImageList(imageList, imageCount, fileNameFormat,startIndex);
+	ImageListReader::ReadImageList(imageList, imageCount, fileNameFormat,startIndex);
 }

@@ -2,7 +2,6 @@
 #include "SuperResolution/SuperResolutionBase.h"
 #include "SuperResolution/SuperResolutionFactory.h"
 
-#include "SuperResolution/ReadEmilyImageList.hpp"
 #include <iostream>
 
 using namespace std;
@@ -53,11 +52,11 @@ int main()
 	*  Building_Downs2 test case result
 	*
 	******************************/
-	auto startIndex = 60;
-	auto totalImageCount = 38;
-	auto fileNameFormat = "Data/dataSets/Books/Book%03d.jpg";
-	auto resultNameFormat = "Result/dataSets/Books/im%03d.png";
-	superResolution->SetBufferSize(8);
+//	auto startIndex = 60;
+//	auto totalImageCount = 38;
+//	auto fileNameFormat = "Data/dataSets/Books/Book%03d.jpg";
+//	auto resultNameFormat = "Result/dataSets/Books/im%03d.png";
+//	superResolution->SetBufferSize(8);
 
 	/*******************************
 	*
@@ -121,12 +120,12 @@ int main()
 	*  Alpaca test case result
 	*  
 	******************************/
-	//	auto startIndex = 1;
-	//	auto totalImageCount = 55;
-	//	auto fileNameFormat = "Data/Alpaca/%d.png";
-	//	auto resultNameFormat = "Result/Alpaca/res%03d.png";
-	//	superResolution->SetBufferSize(55);
-	//	superResolution->SetSRFactor(4);
+	auto startIndex = 1;
+	auto totalImageCount = 55;
+	auto fileNameFormat = "Data/Alpaca/%d.png";
+	auto resultNameFormat = "Result/Alpaca/res%03d.png";
+	superResolution->SetBufferSize(55);
+	superResolution->SetSRFactor(4);
 
 	/*******************************
 	 *

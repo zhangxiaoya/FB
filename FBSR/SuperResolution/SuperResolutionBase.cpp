@@ -3,7 +3,6 @@
 #include <iostream>
 
 #include "SuperResolutionBase.h"
-#include "ReadEmilyImageList.hpp"
 #include "../LKOFlow/LKOFlow.h"
 #include "../Utils/Utils.hpp"
 

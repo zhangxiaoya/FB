@@ -28,7 +28,7 @@
     <Filter Include="SuperResolution\Utils">
       <UniqueIdentifier>{7ac41ae4-f595-47f7-b2a7-c8d54b1dffe3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="SuperResolution\ReadTestImageList">
+    <Filter Include="FrameSource\ReadImageList">
       <UniqueIdentifier>{3243e8b9-51a6-403b-ab0c-9babae9125f5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -80,23 +80,17 @@
     <ClInclude Include="LKOFlow\LKOFlow.h">
       <Filter>LKOFlow</Filter>
     </ClInclude>
-    <ClInclude Include="SuperResolution\ReadEmilyImageList.hpp">
-      <Filter>SuperResolution\ReadTestImageList</Filter>
-    </ClInclude>
     <ClInclude Include="Utils\Utils.hpp">
       <Filter>SuperResolution\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="ReadBeijingImageList.hpp">
-      <Filter>SuperResolution\ReadTestImageList</Filter>
-    </ClInclude>
-    <ClInclude Include="ReadBUAAImageList.hpp">
-      <Filter>SuperResolution\ReadTestImageList</Filter>
-    </ClInclude>
-    <ClInclude Include="ReadPaperImageList.hpp">
-      <Filter>SuperResolution\ReadTestImageList</Filter>
-    </ClInclude>
     <ClInclude Include="FrameSource\ImageListFrameSource.hpp">
       <Filter>FrameSource</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameSource\ImageListReader\ImageListReader.hpp">
+      <Filter>FrameSource\ReadImageList</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameSource\ImageListReader\ImageListReaderBase.hpp">
+      <Filter>FrameSource\ReadImageList</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
