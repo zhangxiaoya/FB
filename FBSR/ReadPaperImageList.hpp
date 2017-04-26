@@ -6,12 +6,12 @@
 class ReadPaperImageList
 {
 public:
-	static void ReadImageList(vector<cv::Mat>& imageList, int imageCount, string file_name_format = "Data/paper3_low_gray/%d.png");
+	static void ReadImageList(vector<cv::Mat>& imageList, int imageCount, string file_name_format = "Data/paper3_low_gray/%d.png", int start_index = 0);
 };
 
-inline void ReadPaperImageList::ReadImageList(vector<cv::Mat>& imageList, int imageCount, string file_name_format)
+inline void ReadPaperImageList::ReadImageList(vector<cv::Mat>& imageList, int imageCount, string file_name_format, int start_index)
 {
-	auto startIndex = 0;
+	auto startIndex = start_index;
 
 	if (imageCount != imageList.size())
 		return;

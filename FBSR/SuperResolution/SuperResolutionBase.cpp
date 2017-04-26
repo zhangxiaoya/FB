@@ -7,9 +7,8 @@
 #include "../LKOFlow/LKOFlow.h"
 #include "../Utils/Utils.hpp"
 
-SuperResolutionBase::SuperResolutionBase(int bufferSize) : isFirstRun(false), bufferSize(bufferSize), srFactor(4), psfSize(3), psfSigma(1.0)
+SuperResolutionBase::SuperResolutionBase(int buffer_size) : isFirstRun(false), bufferSize(buffer_size), srFactor(4), psfSize(3), psfSigma(1.0)
 {
-	this->frameBuffer = new FrameBuffer(bufferSize);
 }
 
 bool SuperResolutionBase::SetFrameSource(const cv::Ptr<FrameSource>& frameSource)
@@ -57,8 +56,14 @@ void SuperResolutionBase::SetBufferSize(int buffer_size)
 
 void SuperResolutionBase::Init(Ptr<FrameSource>& frameSource)
 {
-	Mat currentFrame;
+	if(this->frameBuffer)
+	{
+		delete this->frameBuffer;
+		this->frameBuffer = nullptr;
+	}
+	this->frameBuffer = new FrameBuffer(bufferSize);
 
+	Mat currentFrame;
 	for (auto i = 0; i < bufferSize; ++i)
 	{
 		frameSource->nextFrame(currentFrame);
@@ -358,94 +363,8 @@ vector<Mat> SuperResolutionBase::NearestInterp2(const vector<Mat>& previousFrame
 
 int SuperResolutionBase::Process(OutputArray outputFrame)
 {
-	/************************************************************************************
-	 *
-	 * Set Prarameters for Test Case
-	 *
-	 ***********************************************************************************/
-//	bufferSize = 53;
-//	auto emilyImageCount = 53;
-//	vector<Mat> EmilyImageList;
-//	EmilyImageList.resize(emilyImageCount);
-//	ReadEmilyImageList::ReadImageList(EmilyImageList, emilyImageCount);
-
-	/**********************************************************************************
-	 *
-	 * Read Image List and Register them
-	 *
-	 *********************************************************************************/
-//	frameSize = Size(EmilyImageList[0].cols, EmilyImageList[0].rows);
-//	auto registeredDistances = RegisterImages(EmilyImageList);
-
-	/*==================================================================================*/
-
-	/************************************************************************************
-	*
-	* Set Prarameters for Test Case
-	*
-	***********************************************************************************/
-//	bufferSize = 50;
-//	auto beijingImageCount = 50;
-//	vector<Mat> beijingImageList;
-//	beijingImageList.resize(beijingImageCount);
-//	ReadBeijingImageList::ReadImageList(beijingImageList, beijingImageCount);
-
-	/**********************************************************************************
-	*
-	* Read Image List and Register them
-	*
-	*********************************************************************************/
-//	frameSize = Size(beijingImageList[0].cols, beijingImageList[0].rows);
-//	auto registeredDistances = RegisterImages(beijingImageList);
-
-	/*==================================================================================*/
-
-	/************************************************************************************
-	*
-	* Set Prarameters for Test Case
-	*
-	***********************************************************************************/
-//	srFactor = 2;
-//	bufferSize = 5;
-//	auto buaaImageCount = 12;
-//	vector<Mat> buaaImageList;
-//	buaaImageList.resize(buaaImageCount);
-//	ReadBUAAImageList::ReadImageList(buaaImageList, buaaImageCount);
-
-//	reverse(buaaImageList.begin(), buaaImageList.end());
-	/**********************************************************************************
-	*
-	* Read Image List and Register them
-	*
-	*********************************************************************************/
-//	frameSize = Size(buaaImageList[0].cols, buaaImageList[0].rows);
-//	auto registeredDistances = RegisterImages(buaaImageList);
-
-
-	/*==================================================================================*/
-
-	/************************************************************************************
-	*
-	* Set Prarameters for Test Case
-	*
-	***********************************************************************************/
-//	srFactor = 4;
-//	bufferSize = 50;
-//	auto paperImageCount = bufferSize;
-//	vector<Mat> paperImageList;
-//	paperImageList.resize(paperImageCount);
-//	ReadPaperImageList::ReadImageList(paperImageList, paperImageCount);
-
-//	reverse(paperImageList.begin(), paperImageList.end());
-	/**********************************************************************************
-	*
-	* Read Image List and Register them
-	*
-	*********************************************************************************/
-//	frameSize = Size(paperImageList[0].cols, paperImageList[0].rows);
-//	auto registeredDistances = RegisterImages(paperImageList);
-
 	auto frameList = this->frameBuffer->GetAll();
+	reverse(frameList.begin(), frameList.end());
 	auto registeredDistances = RegisterImages(frameList);
 
 	vector<vector<double>> roundedDistances(registeredDistances.size(), vector<double>(2, 0.0));
@@ -458,37 +377,11 @@ int SuperResolutionBase::Process(OutputArray outputFrame)
 
 	auto Hpsf = Utils::GetGaussianKernal(psfSize, psfSigma);
 
-	auto Hr = FastRobustSR(warpedFrames, roundedDistances, Hpsf);
+	auto highResolutionResult = FastRobustSR(warpedFrames, roundedDistances, Hpsf);
 
-	Hr.convertTo(outputFrame, CV_8UC1);
+	highResolutionResult.convertTo(outputFrame, CV_8UC1);
 
-	auto bufferStatus = UpdateFrameBuffer();
-
-	//	Mat currentFrame;
-//	while (frameBuffer->CurrentFrame().data)
-//	{
-//		auto previous_frames = frameBuffer->GetAll();
-//		auto currentDistances = RegisterImages(previous_frames);
-//		auto restDistances = ReCalculateDistances(currentDistances);
-//		auto interpPreviousFrames = NearestInterp2(previous_frames, restDistances);
-//		auto Hpsf = GetGaussianKernal();
-//		auto Hr = FastRobustSR(interpPreviousFrames, currentDistances, Hpsf);
-//		cout << Hr(Rect(0, 0, 16, 16)) << endl;
-//		cout << endl;
-//		Mat UcharHr;
-//		Hr.convertTo(UcharHr, CV_8UC1);
-//		 for (auto i = 0; i < bufferSize; ++i)
-//		{
-//			imshow("Previous Frames", PreviousFrames[i]);
-//			waitKey(100);
-//		}
-//		cout << UcharHr(Rect(0, 0, 16, 16)) << endl;
-//		frameSource->nextFrame(currentFrame);
-//		frameBuffer->PushGray(currentFrame);
-//	}
-//	currentFrame.release();
-//	destroyAllWindows();
-	return bufferStatus;
+	return UpdateFrameBuffer();
 }
 
 vector<vector<double>> SuperResolutionBase::RegisterImages(vector<Mat>& frames)
