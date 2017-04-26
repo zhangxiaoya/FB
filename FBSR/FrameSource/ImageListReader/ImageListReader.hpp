@@ -7,22 +7,24 @@
 class ImageListReader : public ImageListReaderBase
 {
 public:
-	static void ReadImageList(std::vector<cv::Mat>& imageList, int imageCount, std::string file_name_format = "Data/paper3_low_gray/%d.png", int start_index = 0);
+	explicit ImageListReader(const std::string& file_name_format = "", int start_index = 0): ImageListReaderBase(file_name_format, start_index)
+	{
+	}
+
+	void ReadImageList(std::vector<cv::Mat>& imageList, int imageCount) override;
 };
 
-inline void ImageListReader::ReadImageList(std::vector<cv::Mat>& imageList, int imageCount, std::string file_name_format, int start_index)
+inline void ImageListReader::ReadImageList(std::vector<cv::Mat>& image_list, int image_count)
 {
-	auto startIndex = start_index;
-
-	if (imageCount != imageList.size())
+	if (image_count != image_list.size())
 		return;
 
-	auto fileNameFormat = file_name_format.c_str();
+	auto fileNameFormatCStr = fileNameFormat.c_str();
 
-	for (auto i = startIndex; i < (imageCount + startIndex); ++i)
+	for (auto i = startIndex; i < (image_count + startIndex); ++i)
 	{
 		char name[50];
-		snprintf(name, sizeof(name), fileNameFormat, i);
+		snprintf(name, sizeof(name), fileNameFormatCStr, i);
 
 		std::string fullName(name);
 		auto curImg = cv::imread(fullName, CV_LOAD_IMAGE_GRAYSCALE);
@@ -30,6 +32,6 @@ inline void ImageListReader::ReadImageList(std::vector<cv::Mat>& imageList, int 
 		cv::Mat floatGrayImg;
 		curImg.convertTo(floatGrayImg, CV_32FC1);
 
-		floatGrayImg.copyTo(imageList[i - startIndex]);
+		floatGrayImg.copyTo(image_list[i - startIndex]);
 	}
 }

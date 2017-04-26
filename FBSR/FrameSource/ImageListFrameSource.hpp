@@ -7,6 +7,8 @@ class ImageListFrameSource:public FrameSource
 public:
 	explicit ImageListFrameSource(int image_count, string file_name_format, int start_index = 0);
 
+	~ImageListFrameSource();
+
 	void nextFrame(OutputArray frame) override;
 
 	void reset() override;
@@ -17,11 +19,19 @@ private:
 	int currentIndex;
 	int startIndex;
 	string fileNameFormat;
+	ImageListReader* imageListReader;
 };
 
 inline ImageListFrameSource::ImageListFrameSource(int image_count, string file_name_format,int start_index): imageCount(image_count), startIndex(start_index), fileNameFormat(file_name_format)
 {
+	imageListReader = new ImageListReader();
+
 	ImageListFrameSource::reset();
+}
+
+inline ImageListFrameSource::~ImageListFrameSource()
+{
+	delete imageListReader;
 }
 
 inline void ImageListFrameSource::nextFrame(OutputArray frame)
@@ -42,5 +52,8 @@ inline void ImageListFrameSource::reset()
 {
 	imageList.resize(imageCount);
 	currentIndex = 0;
-	ImageListReader::ReadImageList(imageList, imageCount, fileNameFormat,startIndex);
+
+	imageListReader->SetFileNameFormat(fileNameFormat);
+	imageListReader->SetStartIndex(startIndex);
+	imageListReader->ReadImageList(imageList, imageCount);
 }
