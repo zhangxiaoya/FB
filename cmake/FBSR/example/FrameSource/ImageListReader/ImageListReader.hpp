@@ -1,7 +1,7 @@
 #pragma once
-#include <core/core.hpp>
+#include <opencv2/core.hpp>
 #include <vector>
-#include <highgui/highgui.hpp>
+#include <opencv2/highgui.hpp>
 #include "ImageListReaderBase.hpp"
 
 class ImageListReader : public ImageListReaderBase

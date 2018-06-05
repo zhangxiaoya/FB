@@ -4,7 +4,7 @@
 #include <opencv2/highgui/highgui.hpp>
 
 
-#include "FrameSource.h"
+#include "FrameSource/FrameSource.h"
 
 using namespace cv;
 

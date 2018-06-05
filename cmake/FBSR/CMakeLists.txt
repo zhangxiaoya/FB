@@ -13,7 +13,7 @@ find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIR})
 
 # 设置库目录
-set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 
 # 设置包含文件目录
 include_directories(./include)
@@ -28,18 +28,22 @@ target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
 
 # 构建example
 OPTION(BUILD_EXAMPLE ON)
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/example)
+IF (BUILD_EXAMPLE)
 
-set(EXAMPLE_SOURCE_FILE_LIST example/main.cpp example/MultiFrameProcesser.hpp
-        example/FrameSource/ImageListFrameSource.hpp
-        example/FrameSource/VideoFrameSource.hpp
-        example/FrameSource/CaptureFrameSource.hpp
-        example/FrameSource/EmptyFrameSource.hpp
-        example/FrameSource/FrameSourceFactory.h
-        example/FrameSource/ImageListFrameSource.hpp
-        example/FrameSource/VideoFrameSource.hpp
-        example/FrameSource/ImageListReader/ImageListReader.hpp
-        example/FrameSource/ImageListReader/ImageListReaderBase.hpp)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/example)
 
-add_executable(example ${EXAMPLE_SOURCE_FILE_LIST})
-target_link_libraries(example ${OpenCV_LIBS} ${PROJECT_BINARY_DIR}/lib)
+    set(EXAMPLE_SOURCE_FILE_LIST example/main.cpp
+            example/MultiFrameProcesser.hpp
+            example/FrameSource/ImageListFrameSource.hpp
+            example/FrameSource/VideoFrameSource.hpp
+            example/FrameSource/CaptureFrameSource.hpp
+            example/FrameSource/EmptyFrameSource.hpp
+            example/FrameSource/FrameSourceFactory.h
+            example/FrameSource/ImageListFrameSource.hpp
+            example/FrameSource/VideoFrameSource.hpp
+            example/FrameSource/ImageListReader/ImageListReader.hpp
+            example/FrameSource/ImageListReader/ImageListReaderBase.hpp)
+
+    add_executable(example ${EXAMPLE_SOURCE_FILE_LIST})
+    target_link_libraries(example ${OpenCV_LIBS} ${PROJECT_NAME})
+endif ()

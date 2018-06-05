@@ -1,5 +1,5 @@
 #pragma once
-#include <core/core.hpp>
+#include <opencv2/core.hpp>
 #include <vector>
 
 class ImageListReaderBase
