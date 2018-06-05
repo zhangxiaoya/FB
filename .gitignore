@@ -291,3 +291,6 @@ __pycache__/
 
 # Telerik's JustMock configuration file
 *.jmconfig
+
+.idea/
+cmake-build-debug/
