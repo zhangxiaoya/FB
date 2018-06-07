@@ -24,7 +24,7 @@ make
 
 4. Result
 
-![]()
+![](https://github.com/zhangxiaoya/FB/blob/master/result/eia_4*4_result_00.png)
 
 ## References
 
