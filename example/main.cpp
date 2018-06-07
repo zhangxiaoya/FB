@@ -7,7 +7,7 @@
 using namespace std;
 using namespace cv;
 
-int main()
+int main(int argc, char** argv)
 {
     /*******************************************************************************
      *
@@ -47,71 +47,30 @@ int main()
 
     /*******************************
     *
-    *  This is test case for Building_Downs2,
+    *  This is test case for Adyoron,
     *  uncomment it if run want get
-    *  Building_Downs2 test case result
+    *  Text test case result
     *
     ******************************/
-//	auto startIndex = 60;
-//	auto totalImageCount = 38;
-//	auto fileNameFormat = "Data/dataSets/Books/Book%03d.jpg";
-//	auto resultNameFormat = "Result/dataSets/Books/im%03d.png";
-//	superResolution->SetBufferSize(8);
-
+//    auto startIndex = 0;
+//    auto totalImageCount = 61;
+//    auto fileNameFormat = "../data/Adyoron/%06d.png";
+//    auto resultNameFormat = "../result/Adyoron_4*4_result_%02d.png";
+//    superResolution->SetBufferSize(20);
+//    superResolution->SetSRFactor(4);
     /*******************************
     *
-    *  This is test case for Building_Downs2,
+    *  This is test case for EIA,
     *  uncomment it if run want get
-    *  Building_Downs2 test case result
+    *  Text test case result
     *
     ******************************/
-    //	auto startIndex = 17;
-    //	auto totalImageCount = 11;
-    //	auto fileNameFormat = "Data/dataSets/Building_Downs2/1%d.jpg";
-    //	auto resultNameFormat = "Result/dataSets/Building_Downs2/im%03d.png";
-    //	superResolution->SetBufferSize(8);
-
-    /*******************************
-    *
-    *  This is test case for Aerial4,
-    *  uncomment it if run want get
-    *  Aerial4 test case result
-    *
-    ******************************/
-    //	auto startIndex = 11;
-    //	auto totalImageCount = 4;
-    //	auto fileNameFormat = "Data/dataSets/Aerial4/data%d.tif";
-    //	auto resultNameFormat = "Result/dataSets/Aerial4/im%03d.png";
-    //	superResolution->SetBufferSize(4);
-    //	superResolution->SetSRFactor(2);
-
-    /*******************************
-    *
-    *  This is test case for LSU_MAP3,
-    *  uncomment it if run want get
-    *  LSU_MAP3 test case result
-    *
-    ******************************/
-    //	auto startIndex = 73;
-    //	auto totalImageCount = 13;
-    //	auto fileNameFormat = "Data/dataSets/LSU_MAP3/im0%d.jpg";
-    //	auto resultNameFormat = "Result/dataSets/LSU_MAP3/im%03d.png";
-    //	superResolution->SetBufferSize(6);
-    //	superResolution->SetSRFactor(2);
-
-
-    /*******************************
-    *
-    *  This is test case for Office1,
-    *  uncomment it if run want get
-    *  Office1 test case result
-    *
-    ******************************/
-    //	auto startIndex = 1;
-    //	auto totalImageCount = 21;
-    //	auto fileNameFormat = "Data/dataSets/Office1/im%03d.jpg";
-    //	auto resultNameFormat = "Result/dataSets/Office1/im%03d.png";
-    //	superResolution->SetBufferSize(6);
+    auto startIndex = 0;
+    auto totalImageCount = 16;
+    auto fileNameFormat = "../data/eia/%06d.png";
+    auto resultNameFormat = "../result/eia_4*4_result_%02d.png";
+    superResolution->SetBufferSize(totalImageCount);
+    superResolution->SetSRFactor(4);
 
     /*******************************
     *
@@ -120,12 +79,12 @@ int main()
     *  Text test case result
     *
     ******************************/
-    auto startIndex = 1;
-    auto totalImageCount = 29;
-    auto fileNameFormat = "/home/runisys/Downloads/text/%06d.png";
-    auto resultNameFormat = "/home/runisys/Downloads/text/result/res%03d.png";
-    superResolution->SetBufferSize(29);
-    superResolution->SetSRFactor(4);
+//    auto startIndex = 1;
+//    auto totalImageCount = 29;
+//    auto fileNameFormat = "../data/text/%06d.png";
+//    auto resultNameFormat = "../result/text_4*4_result_%02d.png";
+//    superResolution->SetBufferSize(29);
+//    superResolution->SetSRFactor(4);
 
     /*******************************
      *
@@ -161,7 +120,7 @@ int main()
 
         imshow("High Resolution Frame", currentFrame);
 
-        waitKey(100);
+        waitKey(1000);
 
         char name[50];
         sprintf(name, resultNameFormat, index);
@@ -172,6 +131,7 @@ int main()
 
         ++index;
     }
+    cv::waitKey(0);
     destroyAllWindows();
 
     cout << endl;

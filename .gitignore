@@ -4,8 +4,6 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 # Ignore image file
-*.jpg
-*.png
 *.tif
 *.db
 
