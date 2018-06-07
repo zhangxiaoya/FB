@@ -23,6 +23,7 @@ make
 > the low resolution images are store at data folder by default, and the high resolution result is store at result folder by default.
 
 4. Result
+
 ![原始图像](https://github.com/zhangxiaoya/FB/blob/master/data/eia/000000.png)
 ![超分辨率图像](https://github.com/zhangxiaoya/FB/blob/master/result/eia_4*4_result_00.png)
 
