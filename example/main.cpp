@@ -65,12 +65,12 @@ int main(int argc, char** argv)
     *  Text test case result
     *
     ******************************/
-    auto startIndex = 0;
-    auto totalImageCount = 16;
-    auto fileNameFormat = "../data/eia/%06d.png";
-    auto resultNameFormat = "../result/eia_4*4_result_%02d.png";
-    superResolution->SetBufferSize(totalImageCount);
-    superResolution->SetSRFactor(4);
+//    auto startIndex = 0;
+//    auto totalImageCount = 16;
+//    auto fileNameFormat = "../data/eia/%06d.png";
+//    auto resultNameFormat = "../result/eia_4*4_result_%02d.png";
+//    superResolution->SetBufferSize(totalImageCount);
+//    superResolution->SetSRFactor(4);
 
     /*******************************
     *
@@ -93,12 +93,12 @@ int main(int argc, char** argv)
      *  Emliy test case result
      *
      ******************************/
-    //	auto startIndex = 1;
-    //	auto totalImageCount = 53;
-    //	auto fileNameFormat = "Data/Emily_small/%d.png";
-    //	auto resultNameFormat = "Result/Emily/res%03d.png";
-    //	superResolution->SetBufferSize(53);
-    //	superResolution->SetSRFactor(4);
+    	auto startIndex = 1;
+    	auto totalImageCount = 82;
+    	auto fileNameFormat = "../data/Emily/%06d.png";
+    	auto resultNameFormat = "../result/Emily_4*4_result_%02d.png";
+    	superResolution->SetBufferSize(53);
+    	superResolution->SetSRFactor(4);
 
 
     auto imageListFrameSource = FrameSourceFactory::createFrameSourceFromImageList(totalImageCount, fileNameFormat,
