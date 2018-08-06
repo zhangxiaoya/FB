@@ -1,8 +1,7 @@
-#include "FrameSource/FrameSourceFactory.h"
-#include "SuperResolution/SuperResolutionBase.h"
-#include "SuperResolution/SuperResolutionFactory.h"
+#include "SuperResolutionBase.h"
 
 #include <iostream>
+#include <highgui.h>
 
 using namespace std;
 using namespace cv;
@@ -97,12 +96,11 @@ int main(int argc, char** argv)
     	auto totalImageCount = 82;
     	auto fileNameFormat = "../data/Emily/%06d.png";
     	auto resultNameFormat = "../result/Emily_4*4_result_%02d.png";
-    	superResolution->SetBufferSize(53);
+        superResolution->SetBufferSize(53);
     	superResolution->SetSRFactor(4);
 
 
-    auto imageListFrameSource = FrameSourceFactory::createFrameSourceFromImageList(totalImageCount, fileNameFormat,
-                                                                                   startIndex);
+    auto imageListFrameSource = FrameSourceFactory::createFrameSourceFromImageList(totalImageCount, fileNameFormat, startIndex);
 
     superResolution->SetFrameSource(imageListFrameSource);
 
@@ -118,13 +116,13 @@ int main(int argc, char** argv)
         cout << index << "..";
         auto currentStatus = superResolution->NextFrame(currentFrame);
 
-        imshow("High Resolution Frame", currentFrame);
+        cv::imshow("High Resolution Frame", currentFrame);
 
-        waitKey(1000);
+        cv::waitKey(1000);
 
         char name[50];
         sprintf(name, resultNameFormat, index);
-        imwrite(name, currentFrame);
+        cv::imwrite(name, currentFrame);
 
         if (currentStatus == -1)
             break;
@@ -132,7 +130,7 @@ int main(int argc, char** argv)
         ++index;
     }
     cv::waitKey(0);
-    destroyAllWindows();
+    cv::destroyAllWindows();
 
     cout << endl;
     cout << "All Done!" << endl;
