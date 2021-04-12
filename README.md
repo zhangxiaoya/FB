@@ -9,6 +9,9 @@ The implementation of multi-frame super resolution via sub-pixel. All reference 
 git clone git@github.com:zhangxiaoya/FB.git
 ```
 2. Make foler for build
+
+**Use OpenCV2**
+
 ```
 cd FB
 mkdir build
