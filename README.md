@@ -1,3 +1,4 @@
+[![Board Status](https://zhangxiaoya1989.visualstudio.com/6c7ceafb-920b-48d9-9e3a-7cd936385321/a7b61938-c61f-4b06-91e3-71fbb8ac64ec/_apis/work/boardbadge/62cc233f-3d09-4ab1-a549-abf8ad4fe3f6)](https://zhangxiaoya1989.visualstudio.com/6c7ceafb-920b-48d9-9e3a-7cd936385321/_boards/board/t/a7b61938-c61f-4b06-91e3-71fbb8ac64ec/Microsoft.RequirementCategory)
 # FBSuperResolution
 
 The implementation of multi-frame super resolution via sub-pixel. All reference are following.
